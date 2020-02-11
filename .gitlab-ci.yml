@@ -11,7 +11,7 @@ stages:
 Build:
   stage: build
   tags: 
-    -node
+    - node
   services:
     - docker:dind
   before_script:
@@ -24,7 +24,7 @@ Build:
     - npm run build
 
 Test:
-  stage:test
+  stage: test
   tags:
     - node
   before_script: 
