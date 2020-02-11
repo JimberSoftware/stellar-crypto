@@ -24,7 +24,7 @@
         "start": "ts-node src/index.ts",
         "watch": "nodemon",
         "test": "jest",
-        "prepublish": "yarn test && yarn build"
+        "prepublish": "yarn build"
     },
 
     "devDependencies": {

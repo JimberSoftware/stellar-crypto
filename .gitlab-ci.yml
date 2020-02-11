@@ -11,7 +11,7 @@ Test:
   before_script: 
     - yarn install
   script:
-    - npm run test
+    - yarn test
 
 Build:
   stage: build
@@ -20,7 +20,7 @@ Build:
   before_script:
     - yarn install
   script:
-    - npm run build
+    - yarn publish
 
 
 
