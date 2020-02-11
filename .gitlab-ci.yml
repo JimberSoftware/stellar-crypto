@@ -16,7 +16,7 @@ Build:
 Test:
   stage: test
   tags:
-    -local
+    - local
   before_script: 
     - npm install
   script:
