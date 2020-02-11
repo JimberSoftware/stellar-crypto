@@ -4,6 +4,15 @@ stages:
   - build
   - test
 
+Test:
+  stage: test
+  tags:
+    - local
+  before_script: 
+     - yarn install
+   script:
+     - npm run test
+
 Build:
   stage: build
   tags:
@@ -11,14 +20,7 @@ Build:
   before_script:
     - yarn install
   script:
-    - yarn build
+    - npm run build
 
-Test:
-  stage: test
-  tags:
-    - local
-  before_script: 
-    - yarn install
-  script:
-    - yarn test
+
 
