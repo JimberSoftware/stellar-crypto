@@ -1,7 +1,11 @@
-image: docker:latest
+image: node:9.4.0
+
+cache:
+  paths:
+    - node_modules/
+    - .yarn
 
 before_script:
-  - docker info
   - apt-get update -qq && apt-get install
 
 stages:
@@ -10,15 +14,10 @@ stages:
 
 Build:
   stage: build
-  services:
-    - docker:dind
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - yarn config set cache-folder .yarn
     - yarn install 
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
-    - docker push "$CI_REGISTRY_IMAGE"
     - npm run build
 
 Test:
