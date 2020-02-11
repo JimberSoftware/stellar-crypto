@@ -1,17 +1,17 @@
 image: node:alpine
 
 stages:
-  - build
   - test
+  - build
 
 Test:
   stage: test
   tags:
     - local
   before_script: 
-     - yarn install
-   script:
-     - npm run test
+    - yarn install
+  script:
+    - npm run test
 
 Build:
   stage: build
