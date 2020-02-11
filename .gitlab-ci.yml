@@ -20,7 +20,5 @@ Build:
   before_script:
     - yarn install
   script:
-    - yarn publish
-
-
+    - yarn publish --tag 0.0.8
 
