@@ -9,16 +9,16 @@ Build:
   tags:
     - local
   before_script:
-    - npm install
+    - yarn install
   script:
-    - npm run build
+    - yarn build
 
 Test:
   stage: test
   tags:
     - local
   before_script: 
-    - npm install
+    - yarn install
   script:
-    - npm run test
+    - yarn test
 
