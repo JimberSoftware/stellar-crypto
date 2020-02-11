@@ -1,16 +1,4 @@
-image: node:9.4.0
-
-before_script:
-  - apt-get update -qq && apt-get install
-  # Install yarn as outlined in (https://yarnpkg.com/lang/en/docs/install/#alternatives-stable)
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
-  # Make available in the current terminal
-  - export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-cache:
-  paths:
-    - node_modules/
-    - .yarn
+image: node:alpine
 
 stages:
   - build
@@ -19,16 +7,14 @@ stages:
 Build:
   stage: build
   before_script:
-    - yarn config set cache-folder .yarn
     - yarn install 
   script:
-    - npm run build
+    - yarn build
 
 Test:
   stage: test
   before_script: 
-    - yarn config set cache-folder .yarn
     - yarn install 
   script:
-    -npm run test
+    - yarn test
 
