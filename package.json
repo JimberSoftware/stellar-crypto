@@ -6,12 +6,10 @@
     "repository": "git@github.com:JimberSoftware/revine-stellar-migration.git",
     "author": "Jimber",
     "license": "Apache-2.0",
-    "licenses": [
-        {
-            "type": "Apache-2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0"
-        }
-    ],
+    "licenses": [{
+        "type": "Apache-2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }],
     "dependencies": {
         "@waves/ts-lib-crypto": "^1.4.2",
         "bip39": "^3.0.2",
@@ -25,7 +23,8 @@
         "start": "ts-node src/index.ts",
         "watch": "nodemon",
         "test": "jest",
-        "prepublish": "yarn build"
+        "prepublish": "yarn build",
+        "postversion": "git push --follow-tags"
     },
     "devDependencies": {
         "@types/jest": "^25.1.1",
