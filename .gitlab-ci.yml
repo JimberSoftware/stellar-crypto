@@ -3,30 +3,31 @@ image: node:alpine
 stages:
   - deploy
   - test
-  
+
+before_script: 
+  - yarn install  
+
 Build:
   stage: deploy
   tags:
     - local
-  before_script:
-    - yarn install
   only:
    - /^(\d+\.)?(\d+\.)?(\*|\d+)$/
+  before_script: 
+    - npm version patch
   script:
     - yarn build
     - echo $NPM_TOKEN
+    - echo version
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN">.npmrc
     - cat .npmrc
     - echo $CI_COMMIT_TAG
-    #- yarn publish --tag $CI_COMMIT_TAG --access public
     - yarn publish --tag latest --access public
 
 Test:
   stage: test
   tags:
     - local
-  before_script: 
-    - yarn install
   script:
     - yarn test
 
