@@ -14,7 +14,8 @@ Build:
   only:
    - /^(\d+\.)?(\d+\.)?(\*|\d+)$/
   before_script: 
-    - npm version patch --no-git-tag-version
+    - npm config set git-tag-version=false
+    - npm version patch
   script:
     - yarn build
     - echo $NPM_TOKEN
