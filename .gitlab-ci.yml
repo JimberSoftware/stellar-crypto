@@ -21,6 +21,6 @@ Build:
     - yarn install
   script:
     - yarn build
-    - echo '//registry.npmjs.org/:_authToken=26f92322-f725-4f06-96b2-a816f5e3956b'>.npmrc
-    - yarn publish --tag 0.0.7
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - yarn publish --tag 0.0.6
 
