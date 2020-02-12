@@ -19,8 +19,10 @@ Build:
     - local
   before_script:
     - yarn install
+  only:
+    - /^(\d+\.)?(\d+\.)?(\*|\d+)$/
   script:
     - yarn build
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - yarn publish --tag 0.0.6
+    - yarn publish --tag 0.0.8 --access public
 
