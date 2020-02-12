@@ -14,9 +14,10 @@ Build:
    - /^(\d+\.)?(\d+\.)?(\*|\d+)$/
   script:
     - yarn build
+    - echo $NPM_TOKEN
     - echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN'>.npmrc
     - echo $CI_COMMIT_TAG
-    - yarn publish --tag 0.0.8 --access public
+    - yarn publish --tag $CI_COMMIT_TAG --access public
 
 Test:
   stage: test
