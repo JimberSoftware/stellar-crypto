@@ -1,8 +1,21 @@
 image: node:alpine
 
 stages:
-  - test
   - deploy
+  - test
+  
+Build:
+  stage: deploy
+  tags:
+    - local
+  before_script:
+    - yarn install
+  only:
+    - /^(\d+\.)?(\d+\.)?(\*|\d+)$/
+  script:
+    - yarn build
+    - echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN'>.npmrc
+    - yarn publish --tag 0.0.8 --access public
 
 Test:
   stage: test
@@ -13,16 +26,5 @@ Test:
   script:
     - yarn test
 
-Build:
-  stage: deploy
-  tags:
-    - local
-  before_script:
-    - yarn install
-  #only:
-    #- /^(\d+\.)?(\d+\.)?(\*|\d+)$/
-  script:
-    - yarn build
-    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - yarn publish --tag 0.0.8 --access public
+
 
