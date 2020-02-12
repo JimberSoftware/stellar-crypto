@@ -18,7 +18,8 @@ Build:
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN">.npmrc
     - cat .npmrc
     - echo $CI_COMMIT_TAG
-    - yarn publish --tag $CI_COMMIT_TAG --access public
+    #- yarn publish --tag $CI_COMMIT_TAG --access public
+    - yarn publish --tag latest --access public
 
 Test:
   stage: test

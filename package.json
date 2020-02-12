@@ -1,6 +1,6 @@
 {
     "name": "@jimber/stellar-crypto",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "description": "npm package to convert revine to stellar blockchain",
     "main": "dist/index.js",
     "repository": "git@github.com:JimberSoftware/revine-stellar-migration.git",
