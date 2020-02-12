@@ -15,7 +15,7 @@ Build:
    - /^(\d+\.)?(\d+\.)?(\*|\d+)$/
   before_script: 
     - echo $GITHUB_ACTOR
-    - git switch -c master
+    - git checkout master
     - git config user.email "$GITHUB_ACTOR@gmail.com"
     - git config user.name "$GITHUB_ACTOR"
     - npm config set git-tag-version=false
