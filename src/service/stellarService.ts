@@ -1,5 +1,5 @@
 import {AccountResponse, Keypair, Server, TransactionBuilder, Operation, Asset, Networks, Network} from "stellar-sdk";
-import fetch from "cross-fetch"
+import {fetch} from "cross-fetch"
 
 // @todo: config
 const serverURL = "https://horizon-testnet.stellar.org";
