@@ -31,7 +31,6 @@
         "@types/jest": "^25.1.1",
         "@types/node": "^13.5.3",
         "@types/node-fetch": "^2.5.4",
-        "@types/cross-fetch": "^3.0.4",
         "jest": "^25.1.0",
         "node-fetch": "^2.6.0",
         "nodemon": "^2.0.2",
