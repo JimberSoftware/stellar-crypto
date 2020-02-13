@@ -1,20 +1,19 @@
 {
     "name": "@jimber/stellar-crypto",
-    "version": "0.0.16",
-    "description": "npm package to convert revine to stellar blockchain",
+    "version": "0.0.17",
+    "description": "npm package to convert rivine to stellar blockchain",
     "main": "dist/index.js",
     "repository": "git@github.com:JimberSoftware/revine-stellar-migration.git",
     "author": "Jimber",
     "license": "Apache-2.0",
-    "licenses": [
-        {
-            "type": "Apache-2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0"
-        }
-    ],
+    "licenses": [{
+        "type": "Apache-2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }],
     "dependencies": {
         "@waves/ts-lib-crypto": "^1.4.2",
         "bip39": "^3.0.2",
+        "cross-fetch": "^3.0.4",
         "stellar-sdk": "^3.3.0",
         "tweetnacl-ts": "^1.0.3",
         "tweetnacl-util": "^0.15.1"
@@ -32,6 +31,7 @@
         "@types/jest": "^25.1.1",
         "@types/node": "^13.5.3",
         "@types/node-fetch": "^2.5.4",
+        "@types/cross-fetch": "^3.0.4",
         "jest": "^25.1.0",
         "node-fetch": "^2.6.0",
         "nodemon": "^2.0.2",

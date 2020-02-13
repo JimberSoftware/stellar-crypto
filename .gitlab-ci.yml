@@ -13,15 +13,8 @@ Build:
     - local
   only:
    - /^(\d+\.)?(\d+\.)?(\*|\d+)$/
-  before_script: 
-    - echo $GITHUB_ACTOR
-    - git checkout master
-    - git config user.email "$GITHUB_ACTOR@gmail.com"
-    - git config user.name "$GITHUB_ACTOR"
-    - npm config set git-tag-version=false
     
   script:
-    - npm version patch
     - yarn build
     - echo $NPM_TOKEN
     - echo version
