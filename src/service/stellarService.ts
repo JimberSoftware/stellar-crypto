@@ -1,5 +1,4 @@
-import {AccountResponse, Keypair, Server, TransactionBuilder, Operation, Asset, Networks, Network} from "stellar-sdk";
-import fetch from "node-fetch"
+import { AccountResponse, Keypair, Server, TransactionBuilder, Operation, Asset, Networks, Network } from "stellar-sdk";
 
 // @todo: config
 const serverURL = "https://horizon-testnet.stellar.org";
@@ -26,32 +25,32 @@ export const loadAcount: (pair: Keypair) => Promise<AccountResponse> = async (pa
     return await server.loadAccount(pair.publicKey())
 };
 
-export const addTrustLine: (pair: Keypair) => void = async (pair: Keypair) => {    
-    const asset = new Asset('tft','GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3')
+export const addTrustLine: (pair: Keypair) => void = async (pair: Keypair) => {
+    const asset = new Asset('tft', 'GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3')
     const account = await loadAcount(pair)
     console.log(pair.secret())
     const fee = await server.fetchBaseFee();
 
-    const transaction = new TransactionBuilder(account, { 
+    const transaction = new TransactionBuilder(account, {
         fee,
         networkPassphrase: network
-        });
+    });
     transaction.addOperation(
         Operation.changeTrust({
             asset: asset
         })
     )
     transaction.setTimeout(3000)
-    
+
     const tx = transaction.build()
     tx.sign(pair)
-    try{
+    try {
         server.submitTransaction(tx)
-        .then(
-            res => { console.log('Success! Account Created.') },
-            err => { throw err }
+            .then(
+                res => { console.log('Success! Account Created.') },
+                err => { throw err }
             )
-    }catch(error){
+    } catch (error) {
         console.log(error);
     }
 }
