@@ -1,0 +1,35 @@
+image: node:alpine
+
+stages:
+  - test
+  - deploy
+
+before_script: 
+  - yarn install  
+
+Test:
+  stage: test
+  tags:
+    - local
+  script:
+    - yarn test
+
+Build:
+  stage: deploy
+  tags:
+    - local
+  only:
+   - /^(\d+\.)?(\d+\.)?(\*|\d+)$/  
+  script:
+    - yarn build
+    - echo $NPM_TOKEN
+    - echo version
+    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN">.npmrc
+    - cat .npmrc
+    - echo $CI_COMMIT_TAG
+    - yarn publish --tag latest --access public
+
+
+
+
+
