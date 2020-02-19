@@ -2783,6 +2783,11 @@ mkdirp@0.x, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
+mnemonicconversion2924@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/mnemonicconversion2924/-/mnemonicconversion2924-1.0.3.tgz#11fe231ca0221df2be932972ee0a5d5440ee2d5c"
+  integrity sha512-xRha24VsW+DMSZV1E1kBDN2TYGo/GulOTX38sxSWKIkLufhN2SiW/j+uC4X/IYCsxi4w3xRvvnJZ5RGP7QvFbg==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
