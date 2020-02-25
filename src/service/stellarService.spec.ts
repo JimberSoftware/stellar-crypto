@@ -1,15 +1,15 @@
-import {keypairFromAccount} from "./cryptoService";
+import {keypairFromAccount, revineAddressFromSeed} from "./cryptoService";
 import {generateAccount, loadAcount} from "./stellarService";
 
 const seedPhrase: string = "treat gloom wrong topple learn device stable orchard essay bitter brand cattle amateur beach bulk build cluster quit survey news physical hole tower glass";
 
 
 const keypair = keypairFromAccount(seedPhrase, 0); // see cryptoService
-
+const revineKeypair = revineAddressFromSeed(seedPhrase, 0);
 describe('stellar', () => {
     // can only be done the once and generating an account for every tests isn't particulary good 💩
     it.skip('should generate an account', () => {
-        generateAccount(keypair);
+        generateAccount(keypair, revineKeypair);
     });
     it('should load an account', async () => {
         let accountResponse = await loadAcount(keypair);

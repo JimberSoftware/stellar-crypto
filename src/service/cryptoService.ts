@@ -2,7 +2,7 @@ import { mnemonicToEntropy } from "bip39";
 import { SiaBinaryEncoder } from "../tfchain/tfchain.encoding.siabin";
 import { blake2b } from "@waves/ts-lib-crypto";
 import { Keypair } from "stellar-sdk";
-import { decodeHex } from "tweetnacl-ts";
+import { decodeHex, sign } from "tweetnacl-ts";
 import { getEntropyFromPhrase } from "mnemonicconversion2924";
 
 export const keypairFromAccount: (seedPhrase: string, walletIndex: number) => Keypair = (seedPhrase: string, walletIndex: number) => {
@@ -19,6 +19,13 @@ export const keypairFromAccount: (seedPhrase: string, walletIndex: number) => Ke
     return Keypair.fromRawEd25519Seed(<Buffer>blake2b1Hash);
 };
 
+export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) => String = (seedPhrase: string, walletIndex: number) => {
+    var encoder = SiaBinaryEncoder ();
+	encoder.add_array (entropy);
+	encoder.add_int (walletIndex);
+    var entropy = blake2b (encoder.data);
+    return sign.keyPair.fromSeed (entropy); // TODO
+};
 function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
     if (seedPhrase.split(' ').length === 29) {
         return getEntropyFromPhrase(seedPhrase.split(' '))
