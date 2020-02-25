@@ -1,9 +1,20 @@
 import { AccountResponse, Keypair, Server, TransactionBuilder, Operation, Asset, Networks, Network } from "stellar-sdk";
 
 // @todo: config
-const serverURL = "https://horizon-testnet.stellar.org";
+// @todo: make this better
+
+let serverURL = "https://horizon-testnet.stellar.org";
+let network = Networks.TESTNET;
+let tftIssuer = 'GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3';
+
+if ( typeof(window) !== 'undefined') {
+     serverURL = (<any>window)?.stellarServerUrl || "https://horizon.stellar.org";
+     network = (<any>window)?.stellarNetwork || Networks.PUBLIC;
+     tftIssuer = (<any>window)?.tftIssuer || 'GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47';
+}
+
 const server = new Server(serverURL);
-const network = Networks.TESTNET
+
 
 export const generateAccount: (pair: Keypair) => Promise<void> = async (pair: Keypair) => {
     const response = await fetch(
@@ -26,7 +37,7 @@ export const loadAcount: (pair: Keypair) => Promise<AccountResponse> = async (pa
 };
 
 export const addTrustLine: (pair: Keypair) => void = async (pair: Keypair) => {
-    const asset = new Asset('tft', 'GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3')
+    const asset = new Asset('tft', tftIssuer)
     const account = await loadAcount(pair)
     console.log(pair.secret())
     const fee = await server.fetchBaseFee();
