@@ -2,10 +2,8 @@ import { mnemonicToEntropy } from "bip39";
 import { SiaBinaryEncoder } from "../tfchain/tfchain.encoding.siabin";
 import { blake2b } from "@waves/ts-lib-crypto";
 import { Keypair } from "stellar-sdk";
-import { decodeHex, sign } from "tweetnacl-ts";
+import { decodeHex, sign_keyPair_fromSeed, encodeHex } from "tweetnacl-ts";
 import { getEntropyFromPhrase } from "mnemonicconversion2924";
-import {AssymetricSignKeyPair} from "../tfchain/tfchain.polyfill.crypto.js"
-
 
 export const keypairFromAccount: (seedPhrase: string, walletIndex: number) => Keypair = (seedPhrase: string, walletIndex: number) => {
     const seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase)
@@ -22,17 +20,27 @@ export const keypairFromAccount: (seedPhrase: string, walletIndex: number) => Ke
 };
 
 export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) => String = (seedPhrase: string, walletIndex: number) => {
-    const seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase)
+    const entropy = decodeHex(mnemonicToEntropy(seedPhrase))
 
-    const encoder = SiaBinaryEncoder();
-
-    encoder.add_array(seed);
+    let encoder = SiaBinaryEncoder();
+    encoder.add_array(entropy);
     encoder.add_int(walletIndex);
+    const seed = blake2b(encoder.data);
 
-    // h in go file
-    const entropy: Uint8Array = blake2b(encoder.data);
-    return AssymetricSignKeyPair(entropy)
+    const asyncKeyPair = sign_keyPair_fromSeed(seed)
 
+    const publicKey = asyncKeyPair.publicKey
+
+    const prefix1 = new Uint8Array([101, 100, 50, 53, 53, 49, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0])
+    const prefix2 = new Uint8Array([56, 0, 0, 0, 0, 0, 0, 0])
+
+    const encodedData = new Uint8Array([...prefix2, ...prefix1, ...publicKey])
+
+    var hash = blake2b(encodedData);
+    var publicKeyAsHex = encodeHex(hash)
+    var checksum = encodeHex(blake2b(new Uint8Array([1, ...hash])).slice(0, 6));
+
+    return `01${publicKeyAsHex}${checksum}`
 };
 function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
     if (seedPhrase.split(' ').length === 29) {
