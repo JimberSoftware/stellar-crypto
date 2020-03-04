@@ -39,4 +39,8 @@ describe('crypto', () => {
 
         expect(address).toBe("015c403d0bcf9b889c81a78cd4b93fbb27b6f31ef9c45ae73ed9c7ea3a01c938023160920f3d0b");
     });
+    it('should generate correct revine address from  mnemonic 2', () => {
+        const address = revineAddressFromSeed('hat nose involve faint auction liquid sting ability minute clap road urge focus shrug net vote solution innocent industry vintage rescue voice embody idea', 0);
+        expect(address).toBe("013d67775c28979bf351bea7a53b57a8b7ce5068d69663cd14e3b3b6ddaf05a3f5b44379f88bbe");
+    });
 });

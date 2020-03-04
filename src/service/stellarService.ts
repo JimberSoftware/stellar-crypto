@@ -8,13 +8,7 @@ import {
   Networks,
   Network
 } from "stellar-sdk";
-
-
-// var fetch : fetch = (typeof window !== 'undefined') 
-//     ? window.fetch 
-//     : require('node-fetch');
-
-import fetch from 'node-fetch'
+import axios from 'axios';
 
 const getConfig: () => {
   server: Server;
@@ -60,29 +54,16 @@ export const generateAccount: (
     tfchain_address: tfchainAddress,
     address: stellarPair.publicKey()
   }));
+  console.log('activate account');
 
-  const requestOptions = {
-    method: "POST",
-    body: JSON.stringify({
-      "args": {
-        "tfchain_address": tfchainAddress,
-        "address": stellarPair.publicKey()
-      }
-    }),
-    headers: {
-      "Content-Type": "application/json"
-    },
-  };
-  const { conversionserviceUrl } = getConfig();
-  const response = await fetch(`${conversionserviceUrl}/activate_account`, requestOptions);
-  const result = await response.text();
-  console.log(result);
-
+  await activateAccount(tfchainAddress, stellarPair);
+  console.log('add trustline');
   await addTrustLine(stellarPair);
+  console.log('convert tokens');
   await convertTokens(tfchainAddress, stellarPair.publicKey())
 };
 
-export const loadAcount: (pair: Keypair) => Promise<AccountResponse> = async (
+export const loadAccount: (pair: Keypair) => Promise<AccountResponse> = async (
   pair: Keypair
 ) => {
   const { server } = getConfig();
@@ -91,28 +72,20 @@ export const loadAcount: (pair: Keypair) => Promise<AccountResponse> = async (
 export const convertTokens: (tfchainAddress: String, stellarAddress: String) => Promise<void> = async (tfchainAddress: String, stellarAddress: String) => {
   const { conversionserviceUrl } = getConfig();
 
-  const requestOptions = {
-    method: "POST",
-    body: JSON.stringify({
-      "args": {
-        "tfchain_address": tfchainAddress,
-        "stellar_address": stellarAddress
-      }
-    }),
-    headers: {
-      "Content-Type": "application/json"
-    },
-  };
-
-  const response = await fetch(`${conversionserviceUrl}/migrate_tokens`, requestOptions);
-  const result = await response.text();
+  const response = await axios.post(`${conversionserviceUrl}/migrate_tokens`, {
+    args: {
+      tfchain_address: tfchainAddress,
+      stellar_address: stellarAddress
+    }
+  });
+  const result = response.data;
   console.log(result);
 };
 
 export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypair) => {
   const { server, tftIssuer, network } = getConfig();
   const asset = new Asset("TFT", tftIssuer);
-  const account = await loadAcount(pair);
+  const account = await loadAccount(pair);
   const fee = await server.fetchBaseFee();
 
   const transaction = new TransactionBuilder(account, {
@@ -128,6 +101,31 @@ export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypa
 
   const tx = transaction.build();
   tx.sign(pair);
-  const res = await server.submitTransaction(tx)
-  console.log(res)
+  const trustlineResult = await server.submitTransaction(tx)
+  console.log(trustlineResult)
 };
+const activateAccount = async (tfchainAddress: String, stellarPair: Keypair) => {
+  const requestOptions = {
+    method: "POST",
+    body: JSON.stringify({
+      "args": {
+        "tfchain_address": tfchainAddress,
+        "address": stellarPair.publicKey()
+      }
+    }),
+    headers: {
+      "Content-Type": "application/json"
+    },
+  };
+  const { conversionserviceUrl } = getConfig();
+  const response = await axios.post(`${conversionserviceUrl}/activate_account`, {
+    args: {
+      tfchain_address: tfchainAddress,
+      address: stellarPair.publicKey()
+    }
+  });
+  // const response = await fetch(`${conversionserviceUrl}/activate_account`, requestOptions);
+  const activateAccountresult = response.data;
+  console.log({ activateAccountresult });
+}
+
