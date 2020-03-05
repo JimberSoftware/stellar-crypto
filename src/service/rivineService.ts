@@ -1,5 +1,5 @@
-import {Keypair, StrKey} from "stellar-sdk";
-import {encodeHex} from "tweetnacl-ts";
+import { Keypair, StrKey } from "stellar-sdk";
+import { encodeHex } from "./cryptoService";
 
 export const convertStellarAddressToRivine: (pair: Keypair) => string = (pair: Keypair) => {
     throw new Error('not implemented yet');

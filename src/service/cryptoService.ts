@@ -2,8 +2,16 @@ import { mnemonicToEntropy } from "bip39";
 import { SiaBinaryEncoder } from "../tfchain/tfchain.encoding.siabin";
 import { blake2b } from "@waves/ts-lib-crypto";
 import { Keypair } from "stellar-sdk";
-import { decodeHex, sign_keyPair_fromSeed, encodeHex } from "tweetnacl-ts";
+import { sign_keyPair_fromSeed } from "tweetnacl-ts";
 import { getEntropyFromPhrase } from "mnemonicconversion2924";
+
+export const decodeHex: (hexString: String) => Uint8Array = hexString => {
+    return new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+}
+
+export const encodeHex: (bytes: Uint8Array) => String = bytes => {
+    return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
+}
 
 export const keypairFromAccount: (seedPhrase: string, walletIndex: number) => Keypair = (seedPhrase: string, walletIndex: number) => {
     const seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase)
