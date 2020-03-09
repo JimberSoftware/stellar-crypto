@@ -1,6 +1,8 @@
 import { keypairFromAccount, revineAddressFromSeed } from "./cryptoService";
-import { generateAccount, loadAccount, convertTokens } from "./stellarService";
+import { generateAccount, loadAccount, convertTokens, addTrustLine, buildFundedPaymentTransaction, submitFundedTransaction } from "./stellarService";
 import { generateMnemonic } from "bip39";
+import { Keypair } from "stellar-sdk";
+import { address } from "@waves/ts-lib-crypto";
 
 const seedPhrase: string = "treat gloom wrong topple learn device stable orchard essay bitter brand cattle amateur beach bulk build cluster quit survey news physical hole tower glass";
 
@@ -25,7 +27,7 @@ describe('stellar', () => {
         console.log({ revine: revineKeypair, stellar: keypair.publicKey() });
 
         try {
-            await convertTokens( revineKeypair, keypair.publicKey());
+            await convertTokens(revineKeypair, keypair.publicKey());
         } catch (error) {
             console.log(error.request)
             console.log(error.response.data)
@@ -37,4 +39,18 @@ describe('stellar', () => {
         let accountResponse = await loadAccount(keypair);
         expect(accountResponse.accountId()).toBe('GBTJEFDDMA5N4TDBFLJGA6K3MQFNHR2KUUFYAKYCOAEE43JD4CP3UTQC');
     });
+
+    it('should do payment with tft', async () => {
+
+        const paymentSeedPhrase = "enlist extend limb diet crucial broccoli inhale trick stuff sting talent runway announce surprise dog limb second sun april reason they produce search slab"
+
+        const keypairDaily = keypairFromAccount(paymentSeedPhrase, 0); // see cryptoService
+
+
+        console.log(keypairDaily.secret())
+        const keypairSavings = keypairFromAccount(paymentSeedPhrase, 1); // see cryptoService
+        const fundedTransaction = await buildFundedPaymentTransaction(keypairDaily, keypairSavings.publicKey(), 1, 'test');
+        
+        await submitFundedTransaction(fundedTransaction, keypairDaily);
+    }, 30000);
 });
