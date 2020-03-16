@@ -11,6 +11,7 @@ Rivine address from Stellar address: 015c403d0bcf9b889c81a78cd4b93fbb27b6f31ef9c
 import { calculateWalletEntropyFromAccount, keypairFromAccount, revineAddressFromSeed } from "./cryptoService";
 
 const seedPhrase: string = "treat gloom wrong topple learn device stable orchard essay bitter brand cattle amateur beach bulk build cluster quit survey news physical hole tower glass";
+const seedPhrase25words: string = "puzzle jar fiber ahead cause vote bus mobile junior hundred evoke top ribbon omit idea web oil bus wall holiday day joke rude this stellar";
 const seedPhrase29words: string = "fully mobile shyness pixels sapling match yacht shipped aisle angled olive awful volcano dented knuckle jostle aching yodel austere peeled fowls punch cedar owls lumber ascend noted oyster acumen";
 
 describe('crypto', () => {
@@ -20,6 +21,14 @@ describe('crypto', () => {
 
         expect(keypair.secret()).toBe("SALJQQCQGXDVD6OPWQQITTTRGRNAH6U2PLTGS5XCCKM37M7L6NZHF7HN");
         expect(keypair.publicKey()).toBe("GBTJEFDDMA5N4TDBFLJGA6K3MQFNHR2KUUFYAKYCOAEE43JD4CP3UTQC");
+    });
+    it('should generate correct stellar keypair from 25 words ', () => {
+        // If we have a 25 word seed we import using -1.
+        const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase25words, -1);
+        const keypair = keypairFromAccount(walletEntropy);
+
+        expect(keypair.secret()).toBe("SD6HAPCKSF2BVXZ2V6LZYT6GMEFCBPVITJW5Q3TIHRMAU4725BQRCJXF");
+        expect(keypair.publicKey()).toBe("GCLK2AHD3WOV7TD3PA2UWZBK7G5QXWGOBPAWFYRQQIBKW276QRFVQTSD");
     });
     it('should generate correct second stellar keypair', () => {
         const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 1);

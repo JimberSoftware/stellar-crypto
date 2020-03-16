@@ -14,12 +14,19 @@ export const encodeHex: (bytes: Uint8Array) => String = bytes => {
 }
 
 export function calculateWalletEntropyFromAccount (seedPhrase: string, walletIndex: number) : Uint8Array {
-    const seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase)
+    var seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase)
+
+    if(seed.length >= 33) {
+        seed = seed.slice(0, 32)
+    }
 
     const encoder = SiaBinaryEncoder();
 
     encoder.add_array(seed);
-    encoder.add_int(walletIndex);
+
+    if(walletIndex != -1 && seed.length === 32) {
+        encoder.add_int(walletIndex);
+    }
 
     // h in go file
     const blake2b1Hash: Uint8Array = blake2b(encoder.data);
@@ -55,10 +62,28 @@ export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) =>
     return `01${publicKeyAsHex}${checksum}`
 };
 function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
-    if (seedPhrase.split(' ').length === 29) {
-        return getEntropyFromPhrase(seedPhrase.split(' '))
+    const splitSeedPhrase = seedPhrase.split(' ')
+
+    if (splitSeedPhrase.length === 29) {
+        return getEntropyFromPhrase(splitSeedPhrase)
     }
 
-    const entropy = mnemonicToEntropy(seedPhrase);
-    return decodeHex(entropy)
+    // App wallets
+    if (splitSeedPhrase.length === 25 && splitSeedPhrase[splitSeedPhrase.length - 1] === "stellar") {
+        splitSeedPhrase.pop()
+        seedPhrase = splitSeedPhrase.join(" ");
+
+        const entropy = mnemonicToEntropy(seedPhrase);
+
+        var original = decodeHex(entropy);
+
+        var arr = [].slice.call(original)
+        arr.add(0)
+
+        var modified = Uint8Array.from(arr)
+        return modified;
+    } else {
+        const entropy = mnemonicToEntropy(seedPhrase);
+        return decodeHex(entropy)
+    }
 }
