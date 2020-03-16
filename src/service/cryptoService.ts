@@ -13,10 +13,10 @@ export const encodeHex: (bytes: Uint8Array) => String = bytes => {
     return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
 }
 
-export function calculateWalletEntropyFromAccount (seedPhrase: string, walletIndex: number) : Uint8Array {
+export function calculateWalletEntropyFromAccount(seedPhrase: string, walletIndex: number): Uint8Array {
     var seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase)
 
-    if(seed.length >= 33) {
+    if (seed.length >= 33) {
         seed = seed.slice(0, 32)
     }
 
@@ -24,7 +24,7 @@ export function calculateWalletEntropyFromAccount (seedPhrase: string, walletInd
 
     encoder.add_array(seed);
 
-    if(walletIndex != -1 && seed.length === 32) {
+    if (walletIndex != -1 && seed.length === 32) {
         encoder.add_int(walletIndex);
     }
 
@@ -34,16 +34,24 @@ export function calculateWalletEntropyFromAccount (seedPhrase: string, walletInd
     return blake2b1Hash;
 };
 
-export function keypairFromAccount (walletEntropy: Uint8Array) : Keypair {
+export function keypairFromAccount(walletEntropy: Uint8Array): Keypair {
     return Keypair.fromRawEd25519Seed(<Buffer>walletEntropy);
 };
 
 export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) => String = (seedPhrase: string, walletIndex: number) => {
-    const entropy = decodeHex(mnemonicToEntropy(seedPhrase))
+    var entropy = getSeedFromSeedPhrase(seedPhrase)
+
+    if (entropy.length >= 33) {
+        entropy = entropy.slice(0, 32)
+    }
 
     let encoder = SiaBinaryEncoder();
     encoder.add_array(entropy);
-    encoder.add_int(walletIndex);
+
+    if (walletIndex != -1) {
+        encoder.add_int(walletIndex);
+    }
+
     const seed = blake2b(encoder.data);
 
     const asyncKeyPair = sign_keyPair_fromSeed(seed)
