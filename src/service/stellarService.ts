@@ -13,7 +13,7 @@ import StellarSdk, {
 } from "stellar-sdk";
 import axios from 'axios';
 
-const getConfig: () => {
+export const getConfig: () => {
   server: Server;
   serverURL: string;
   network: string;
