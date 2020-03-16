@@ -1,4 +1,4 @@
-import { keypairFromAccount, revineAddressFromSeed } from "./cryptoService";
+import { calculateWalletEntropyFromAccount, keypairFromAccount, revineAddressFromSeed } from "./cryptoService";
 import { generateAccount, loadAccount, convertTokens, addTrustLine, buildFundedPaymentTransaction, submitFundedTransaction } from "./stellarService";
 import { generateMnemonic } from "bip39";
 import { Keypair } from "stellar-sdk";
@@ -6,7 +6,9 @@ import { address } from "@waves/ts-lib-crypto";
 
 const seedPhrase: string = "treat gloom wrong topple learn device stable orchard essay bitter brand cattle amateur beach bulk build cluster quit survey news physical hole tower glass";
 
-const keypair = keypairFromAccount(seedPhrase, 0); // see cryptoService
+const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
+const keypair = keypairFromAccount(walletEntropy);
+
 const revineKeypair = revineAddressFromSeed(seedPhrase, 0);
 describe('stellar', () => {
     // can only be done the once and generating an account for every tests isn't particulary good 💩
@@ -44,11 +46,15 @@ describe('stellar', () => {
 
         const paymentSeedPhrase = "enlist extend limb diet crucial broccoli inhale trick stuff sting talent runway announce surprise dog limb second sun april reason they produce search slab"
 
-        const keypairDaily = keypairFromAccount(paymentSeedPhrase, 0); // see cryptoService
+        const walletEntropy = calculateWalletEntropyFromAccount(paymentSeedPhrase, 0);
+        const keypairDaily = keypairFromAccount(walletEntropy);
 
 
         console.log(keypairDaily.secret())
-        const keypairSavings = keypairFromAccount(paymentSeedPhrase, 1); // see cryptoService
+
+        const walletEntropy2 = calculateWalletEntropyFromAccount(paymentSeedPhrase, 0);
+        const keypairSavings = keypairFromAccount(walletEntropy2);
+
         const fundedTransaction = await buildFundedPaymentTransaction(keypairDaily, keypairSavings.publicKey(), 1, 'test');
         
         await submitFundedTransaction(fundedTransaction, keypairDaily);
