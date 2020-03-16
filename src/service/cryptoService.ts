@@ -13,7 +13,7 @@ export const encodeHex: (bytes: Uint8Array) => String = bytes => {
     return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
 }
 
-export const keypairFromAccount: (seedPhrase: string, walletIndex: number) => Keypair = (seedPhrase: string, walletIndex: number) => {
+export function calculateWalletEntropyFromAccount (seedPhrase: string, walletIndex: number) : Uint8Array {
     const seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase)
 
     const encoder = SiaBinaryEncoder();
@@ -24,7 +24,11 @@ export const keypairFromAccount: (seedPhrase: string, walletIndex: number) => Ke
     // h in go file
     const blake2b1Hash: Uint8Array = blake2b(encoder.data);
 
-    return Keypair.fromRawEd25519Seed(<Buffer>blake2b1Hash);
+    return blake2b1Hash;
+};
+
+export function keypairFromAccount (walletEntropy: Uint8Array) : Keypair {
+    return Keypair.fromRawEd25519Seed(<Buffer>walletEntropy);
 };
 
 export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) => String = (seedPhrase: string, walletIndex: number) => {
