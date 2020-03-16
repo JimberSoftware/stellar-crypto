@@ -27,8 +27,9 @@ describe('crypto', () => {
         const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase25words, -1);
         const keypair = keypairFromAccount(walletEntropy);
 
-        expect(keypair.secret()).toBe("SD6HAPCKSF2BVXZ2V6LZYT6GMEFCBPVITJW5Q3TIHRMAU4725BQRCJXF");
-        expect(keypair.publicKey()).toBe("GCLK2AHD3WOV7TD3PA2UWZBK7G5QXWGOBPAWFYRQQIBKW276QRFVQTSD");
+        expect(keypair.secret()).toBe("SCXO52KWQKJET26HXRZXSLPFHBZHXEJU3QP4NGOD37NLMY4A6CXT6VXL");
+        expect(keypair.publicKey()).toBe("GA62DWANAI5KBY3JJNMPVYPKI5AWILP2WQTJU63Q3JVHUPSC6Y7AATEP");
+                                        //GA62DWANAI5KBY3JJNMPVYPKI5AWILP2WQTJU63Q3JVHUPSC6Y7AATEP
     });
     it('should generate correct second stellar keypair', () => {
         const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 1);

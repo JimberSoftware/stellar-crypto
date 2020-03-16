@@ -20,6 +20,10 @@ export function calculateWalletEntropyFromAccount(seedPhrase: string, walletInde
         seed = seed.slice(0, 32)
     }
 
+    if (walletIndex == -1) {
+        return seed;
+    }
+
     const encoder = SiaBinaryEncoder();
 
     encoder.add_array(seed);
