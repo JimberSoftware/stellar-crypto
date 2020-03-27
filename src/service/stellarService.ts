@@ -12,6 +12,7 @@ import StellarSdk, {
   Transaction
 } from "stellar-sdk";
 import axios from 'axios';
+import {log} from "../tfchain/math";
 
 export const getConfig: () => {
   server: Server;
@@ -49,7 +50,19 @@ export const getConfig: () => {
   };
 };
 
-export const generateAccount: (
+export const generateActivationCode = async (keyPair: Keypair) => {
+  const { serviceUrl } = getConfig();
+
+  const response = await axios.post(`${serviceUrl}/activation_service/create_activation_code`, {
+    args: {
+      address: keyPair.publicKey(),
+    }
+  });
+
+  return response.data.activation_code
+};
+
+export const migrateAccount: (
   stellarPair: Keypair,
   tfchainAddress: String
 ) => Promise<void> = async (stellarPair: Keypair, tfchainAddress: String) => {
@@ -59,7 +72,7 @@ export const generateAccount: (
   }));
   console.log('activate account');
 
-  await activateAccount(tfchainAddress, stellarPair);
+  await migrateStellarAccount(tfchainAddress, stellarPair);
   console.log('add trustline');
   await addTrustLine(stellarPair);
   console.log('convert tokens');
@@ -107,7 +120,7 @@ export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypa
   const trustlineResult = await server.submitTransaction(tx)
   console.log(trustlineResult)
 };
-const activateAccount = async (tfchainAddress: String, stellarPair: Keypair) => {
+const migrateStellarAccount = async (tfchainAddress: String, stellarPair: Keypair) => {
   const requestOptions = {
     method: "POST",
     body: JSON.stringify({

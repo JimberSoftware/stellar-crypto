@@ -1,5 +1,13 @@
 import { calculateWalletEntropyFromAccount, keypairFromAccount, revineAddressFromSeed } from "./cryptoService";
-import { generateAccount, loadAccount, convertTokens, addTrustLine, buildFundedPaymentTransaction, submitFundedTransaction } from "./stellarService";
+import {
+    migrateAccount,
+    loadAccount,
+    convertTokens,
+    addTrustLine,
+    buildFundedPaymentTransaction,
+    submitFundedTransaction,
+    generateActivationCode
+} from "./stellarService";
 import { generateMnemonic } from "bip39";
 import { Keypair } from "stellar-sdk";
 import { address } from "@waves/ts-lib-crypto";
@@ -17,7 +25,7 @@ describe('stellar', () => {
         console.log({ revine: revineKeypair, stellar: keypair.publicKey() });
 
         try {
-            await generateAccount(keypair, revineKeypair);
+            await migrateAccount(keypair, revineKeypair);
         } catch (error) {
             console.log(error.request)
             console.log(error.response.data)
@@ -58,5 +66,16 @@ describe('stellar', () => {
         const fundedTransaction = await buildFundedPaymentTransaction(keypairDaily, keypairSavings.publicKey(), 1, 'test');
         
         await submitFundedTransaction(fundedTransaction, keypairDaily);
+    }, 30000);
+
+    it('should generate activation code', async () => {
+        const seedPhrase: string = generateMnemonic(256);
+
+        const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
+        const keypair = keypairFromAccount(walletEntropy);
+        const code = await generateActivationCode(keypair);
+
+        expect(typeof code).toBe('string')
+
     }, 30000);
 });

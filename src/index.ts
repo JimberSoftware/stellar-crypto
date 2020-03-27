@@ -1,6 +1,6 @@
 import {calculateWalletEntropyFromAccount, keypairFromAccount, revineAddressFromSeed} from "./service/cryptoService";
 import {Keypair} from "stellar-sdk";
-import {generateAccount} from "./service/stellarService";
+import {migrateAccount} from "./service/stellarService";
 
 export const convertTfAccount: (seedPhrase: string, walletAmount?: number, startIndex?: number) => Promise<void> = async (seedPhrase: string, walletAmount: number = 1, startIndex: number = 1) => {
     for (let i = 0; i < walletAmount; i++) {
@@ -8,6 +8,6 @@ export const convertTfAccount: (seedPhrase: string, walletAmount?: number, start
         const stellarPair = keypairFromAccount(walletEntropy);
 
         const revinePair = revineAddressFromSeed(seedPhrase, startIndex + i)
-        await generateAccount(stellarPair, revinePair);
+        await migrateAccount(stellarPair, revinePair);
     }
 };
