@@ -73,9 +73,10 @@ describe('stellar', () => {
 
         const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
         const keypair = keypairFromAccount(walletEntropy);
-        const code = await generateActivationCode(keypair);
+        const response = await generateActivationCode(keypair);
 
-        expect(typeof code).toBe('string')
+        expect(typeof response.activation_code).toBe('string')
+        expect(typeof response.phonenumbers).toBe('object')
 
     }, 30000);
 });

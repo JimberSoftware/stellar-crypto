@@ -59,7 +59,7 @@ export const generateActivationCode = async (keyPair: Keypair) => {
     }
   });
 
-  return response.data.activation_code
+  return {...response.data}
 };
 
 export const migrateAccount: (
