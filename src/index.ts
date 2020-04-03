@@ -11,3 +11,4 @@ export const convertTfAccount: (seedPhrase: string, walletAmount?: number, start
         await migrateAccount(stellarPair, revinePair);
     }
 };
+

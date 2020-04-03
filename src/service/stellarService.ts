@@ -20,6 +20,8 @@ export const getConfig: () => {
   network: string;
   tftIssuer: string;
   serviceUrl: string;
+  feeDestination: string;
+  feeAmount: string;
 } = () => {
   // @todo: config
   // @todo: make this better
@@ -29,6 +31,8 @@ export const getConfig: () => {
   let tftIssuer = "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3";
   let serviceUrl =
     "https://testnet.threefold.io/threefoldfoundation";
+  let feeDestination = "GAKONCKYJ7PRRKBZSWVPG3MURUNX4H44AB3CU2YGVKF2FD7KXJBB3XID"
+  let feeAmount = "0.1000000"
 
   if (typeof window !== "undefined") {
     serverURL =
@@ -38,6 +42,8 @@ export const getConfig: () => {
       (<any>window)?.tftIssuer ||
       "GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47";
     serviceUrl = (<any>window)?.serviceUrl || ""; //@todo prod url?
+    feeDestination = (<any>window)?.feeDestination || ""//@todo prod fee destination address;
+    feeAmount = (<any>window)?.feeAmount || "0.1000000";
   }
 
   const server = new Server(serverURL);
@@ -46,7 +52,9 @@ export const getConfig: () => {
     serverURL,
     network,
     tftIssuer,
-    serviceUrl
+    serviceUrl,
+    feeDestination,
+    feeAmount
   };
 };
 
@@ -205,8 +213,11 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
     console.log('transaction');
     console.log(result.data);
 
-    //@TODO validation
     fundedTransaction = new Transaction(result.data, network)
+
+    if(!verifyTransaction(transaction, fundedTransaction)){
+      throw new Error("Transaction verification failed.")
+    }
 
     return fundedTransaction;
   } catch (error) {
@@ -216,7 +227,6 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
 }
 
 export const submitFundedTransaction = async (fundedTransaction: Transaction, sourceKeyPair: Keypair) => {
-  //@TODO user interaction for validation before signing ?
 
   // Sign the transaction to prove you are actually the person sending it.
   fundedTransaction.sign(sourceKeyPair);
@@ -235,4 +245,42 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
     // already built transaction:
     // await server.submitTransaction(fundedTransaction);
   }
+}
+
+export const verifyTransaction = (originalTransaction: Transaction, fundedTransaction: Transaction) => {
+  const { network, feeAmount, feeDestination, tftIssuer } = getConfig();
+
+  let feePayment =  {
+    destination: feeDestination,
+    asset: new Asset('TFT', tftIssuer),
+    amount: feeAmount,
+    source: originalTransaction.operations[0].source,
+  }
+
+  // check signatures on funded (1)
+  // check operations length
+  // check fist payment of original with first payment of funded
+  // check feePayment with first payment of funded
+  // check if memo hasn't been changed @todo how to check the memo text?
+  if( fundedTransaction.signatures.length !== 1
+    || fundedTransaction.operations.length !== 2
+    || !checkPayment(<Operation.Payment>originalTransaction.operations[0], <Operation.Payment>fundedTransaction.operations[0])
+    || !checkPayment(<Operation.Payment>feePayment, <Operation.Payment>fundedTransaction.operations[1])
+    || originalTransaction.memo.type !== fundedTransaction.memo.type
+    || originalTransaction.memo.value !== fundedTransaction.memo.value.toString() 
+    ){
+    return false
+  }
+  return true
+}
+
+export const checkPayment = (originalOperation: Operation.Payment, fundedOperation: Operation.Payment) => {
+  if (originalOperation.destination !== fundedOperation.destination
+      || originalOperation.asset.issuer !== fundedOperation.asset.issuer
+      || originalOperation.asset.code !== fundedOperation.asset.code
+      || originalOperation.amount !== fundedOperation.amount
+      || originalOperation.source !== fundedOperation.source) {
+    return false
+  }
+  return true
 }
