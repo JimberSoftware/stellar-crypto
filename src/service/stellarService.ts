@@ -227,7 +227,6 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
 }
 
 export const submitFundedTransaction = async (fundedTransaction: Transaction, sourceKeyPair: Keypair) => {
-  //@TODO user interaction for validation before signing ?
 
   // Sign the transaction to prove you are actually the person sending it.
   fundedTransaction.sign(sourceKeyPair);
@@ -268,6 +267,7 @@ export const verifyTransaction = (originalTransaction: Transaction, fundedTransa
     || !checkPayment(<Operation.Payment>originalTransaction.operations[0], <Operation.Payment>fundedTransaction.operations[0])
     || !checkPayment(<Operation.Payment>feePayment, <Operation.Payment>fundedTransaction.operations[1])
     || originalTransaction.memo.type !== fundedTransaction.memo.type
+    || originalTransaction.memo.value !== fundedTransaction.memo.value.toString() 
     ){
     return false
   }
