@@ -275,14 +275,12 @@ export const verifyTransaction = (originalTransaction: Transaction, fundedTransa
 }
 
 export const checkPayment = (originalOperation: Operation.Payment, fundedOperation: Operation.Payment) => {
-  if(
-    originalOperation.destination === fundedOperation.destination
-    && originalOperation.asset.issuer === fundedOperation.asset.issuer
-    && originalOperation.asset.code === fundedOperation.asset.code
-    && originalOperation.amount === fundedOperation.amount
-    && originalOperation.source === fundedOperation.source
-    ){
-      return true
+  if (originalOperation.destination !== fundedOperation.destination
+      || originalOperation.asset.issuer !== fundedOperation.asset.issuer
+      || originalOperation.asset.code !== fundedOperation.asset.code
+      || originalOperation.amount !== fundedOperation.amount
+      || originalOperation.source !== fundedOperation.source) {
+    return false
   }
-  return false
+  return true
 }
