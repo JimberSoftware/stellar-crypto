@@ -48,7 +48,7 @@ describe('lockservice', () => {
         }
 
     }, 300000);
-    it('should transfer tokens from escrow account', async () => {
+    it.skip('should transfer tokens from escrow account', async () => {
         const balances = await getLockedBalances(keypair);
         const lockedFunds = balances[0];
         console.log(lockedFunds);
