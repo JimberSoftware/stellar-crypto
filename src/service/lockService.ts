@@ -1,5 +1,5 @@
 import {getConfig} from "./stellarService";
-import {Keypair, Transaction} from "stellar-sdk";
+import {Asset, BASE_FEE, Keypair, Operation, Transaction, TransactionBuilder} from "stellar-sdk";
 import axios from 'axios';
 
 
@@ -20,16 +20,68 @@ export const fetchUnlockTransaction = async (unlockHash: string) => {
 export const getLockedBalances = async (keyPair: Keypair) => {
     const {server} = getConfig();
 
-    const accounts = server.accounts().forSigner(keyPair.publicKey());
+    const accounts = server.accounts().forSigner(keyPair.publicKey()).limit(100);
 
     const accountRecord = await accounts.call();
-    return accountRecord.records
-        .filter(a => a.id !== keyPair.publicKey())
+    const signedAccounts = accountRecord.records
+        .filter(a => a.id !== keyPair.publicKey());
+    return signedAccounts
         .map(account => {
+            const unlockHashSigner = account.signers.find(s => s.type === 'preauth_tx');
             return {
+                keyPair,
                 id: account.id,
                 balance: account.balances.find(b => b.asset_type === 'credit_alphanum4' && b.asset_code === 'TFT').balance,
-                unlockHash: account.signers.find(s => s.type === 'preauth_tx').key,
+                unlockHash: unlockHashSigner?.key || null,
             }
         });
+};
+
+export const transferLockedTokens = async (keyPair: Keypair, id: string, amount?: number) => {
+
+    const {server, network, tftIssuer} = getConfig();
+
+    const account = await server.loadAccount(keyPair.publicKey());
+
+    const builder = new TransactionBuilder(
+        account,
+        {
+            fee: BASE_FEE,
+            networkPassphrase: network
+        }
+    );
+
+    if (amount) {
+        builder.addOperation(
+            Operation.payment({
+                destination: keyPair.publicKey(),
+                asset: new Asset('TFT', tftIssuer),
+                amount: amount.toFixed(3),
+                source: id,
+            })
+        );
+    }
+    builder.addOperation(
+        Operation.changeTrust(
+            {
+                source: id,
+                asset: new Asset('TFT', tftIssuer),
+                limit: '0'
+            }
+        )
+    );
+    builder.addOperation(
+        Operation.accountMerge({
+            source:id,
+            destination: keyPair.publicKey(),
+        })
+    ).setTimeout(86400)
+    const transaction = builder.build();
+    transaction.sign(keyPair)
+    console.log(transaction.toXDR())
+    try {
+        await server.submitTransaction(transaction)
+    } catch (e) {
+        console.log(e.response.data.extras.result_codes)
+    }
 };

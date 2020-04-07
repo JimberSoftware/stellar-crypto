@@ -26,7 +26,7 @@
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "start": "ts-node src/index.ts",
-    "watch": "nodemon",
+    "watch": "tsc --watch",
     "test": "jest",
     "prepublish": "yarn build"
   },

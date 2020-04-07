@@ -1,11 +1,15 @@
 import {calculateWalletEntropyFromAccount, keypairFromAccount, revineAddressFromSeed} from "./cryptoService";
-import {fetchUnlockTransaction, getLockedBalances} from "./lockService";
+import {
+    fetchUnlockTransaction,
+    getLockedBalances,
+    transferLockedTokens
+} from "./lockService";
 import {getConfig} from "./stellarService";
 
 
 const seedPhrase: string = "enlist extend long diet crucial broccoli inhale tuna stuff sting miracle runway announce surprise dog limb second sun april reason they produce sick spray";
 
-const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
+const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 1);
 const keypair = keypairFromAccount(walletEntropy);
 console.log(keypair.publicKey())
 
@@ -13,12 +17,11 @@ describe('lockservice', () => {
     it('should have locked tokens', async () => {
         const lockedFunds = await getLockedBalances(keypair);
 
-        console.log(lockedFunds);
         expect(lockedFunds).toStrictEqual([
             {
-                id: 'GBS5U2ZBW6BO6JVZW72RUMLZFKRMILDPA7VE3DV7LYVYJHCOKP7JJ4HV',
-                balance: '50.0000000',
-                unlockHash: 'TAEYUR6Y2O2IQE4PXMIBGTTNUSLNBSQ3NGO4C5Z3RO4INHKYU6UUDPSY'
+                id: 'GDGV7Q3WHYN3X5VHRJ7ICU7LIM5VO3SHS6565QYNDBV77NDGH2RLOQJZ',
+                balance: '1.0000000',
+                unlockHash: 'TDMJUZJ2HUTXFJ4PFTQZXPXGPAGGXNXLH2642A2OROVJ4HI2RQYYTLEB'
             }
         ])
     });
@@ -44,6 +47,14 @@ describe('lockservice', () => {
             // await server.submitTransaction(fundedTransaction);
         }
 
-    });
+    }, 300000);
+    it('should transfer tokens from escrow account', async () => {
+        const balances = await getLockedBalances(keypair);
+        const lockedFunds = balances[0];
+        console.log(lockedFunds);
+        // expect(lockedFunds.id).toEqual('GAQAI5BBINBXHTSODKNLJ6DWC7I75X25OKMAMOH3NV47VDMCCECOJL72');
+        expect(lockedFunds.unlockHash).toEqual(null);
+        await transferLockedTokens(lockedFunds.keyPair, lockedFunds.id, Number(lockedFunds.balance))
+    }, 300000);
 });
 

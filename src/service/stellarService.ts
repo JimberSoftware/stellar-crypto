@@ -177,7 +177,7 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
   // Start building the transaction.
   transaction = new TransactionBuilder(sourceAccount, {
     fee: 0,
-    networkPassphrase: Networks.TESTNET,
+    networkPassphrase: Networks.TESTNET, //@todo change to config network
   })
     .addOperation(
       Operation.payment({
