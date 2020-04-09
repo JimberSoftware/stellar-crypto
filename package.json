@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "npm package to convert revine to stellar blockchain",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "git@github.com:JimberSoftware/revine-stellar-migration.git",
   "author": "Jimber",
   "license": "Apache-2.0",
