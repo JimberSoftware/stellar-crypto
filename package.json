@@ -19,12 +19,12 @@
     "axios": "^0.19.2",
     "bip39": "^3.0.2",
     "mnemonicconversion2924": "^1.1.2",
-    "stellar-sdk": "^4.0.2",
+    "stellar-sdk": "^4.1.0",
     "tweetnacl-ts": "^1.0.3",
     "tweetnacl-util": "^0.15.1"
   },
   "scripts": {
-    "prebuild": "rm -rf dist",
+    "prebuild": "rm -rf dist && mkdir dist && cp -r src/tfchain dist/tfchain ",
     "build": "tsc",
     "start": "ts-node src/index.ts",
     "watch": "tsc --watch",
