@@ -18,32 +18,44 @@ export const getConfig: () => {
   server: Server;
   serverURL: string;
   network: string;
-  tftIssuer: string;
+  // tftIssuer: string;
   serviceUrl: string;
   feeDestination: string;
   feeAmount: string;
+  currencies: Object;
 } = () => {
   // @todo: config
   // @todo: make this better
 
   let serverURL = "https://horizon-testnet.stellar.org";
   let network = Networks.TESTNET;
-  let tftIssuer = "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3";
+  // let tftIssuer = "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3";
   let serviceUrl =
     "https://testnet.threefold.io/threefoldfoundation";
   let feeDestination = "GAKONCKYJ7PRRKBZSWVPG3MURUNX4H44AB3CU2YGVKF2FD7KXJBB3XID"
   let feeAmount = "0.1000000"
+  let currencies = {
+    TFT: {
+        asset_code: "TFT",
+        issuer: "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3",
+    },
+    FreeTFT: {
+        asset_code: "FreeTFT",
+        issuer: "GBLDUINEFYTF7XEE7YNWA3JQS4K2VD37YU7I2YAE7R5AHZDKQXSS2J6R",
+    }
+  }
 
   if (typeof window !== "undefined") {
     serverURL =
       (<any>window)?.stellarServerUrl || "https://horizon.stellar.org";
     network = (<any>window)?.stellarNetwork || Networks.PUBLIC;
-    tftIssuer =
-      (<any>window)?.tftIssuer ||
-      "GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47";
+    // tftIssuer =
+    //   (<any>window)?.tftIssuer ||
+    //   "GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47";
     serviceUrl = (<any>window)?.serviceUrl || ""; //@todo prod url?
     feeDestination = (<any>window)?.feeDestination || ""//@todo prod fee destination address;
     feeAmount = (<any>window)?.feeAmount || "0.1000000";
+    currencies = (<any>window)?.currencies || null; //@todo prod currencies
   }
 
   const server = new Server(serverURL);
@@ -51,10 +63,11 @@ export const getConfig: () => {
     server,
     serverURL,
     network,
-    tftIssuer,
+    // tftIssuer,
     serviceUrl,
     feeDestination,
-    feeAmount
+    feeAmount,
+    currencies
   };
 };
 
@@ -107,8 +120,7 @@ export const convertTokens: (tfchainAddress: String, stellarAddress: String) => 
 };
 
 export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypair) => {
-  const { server, tftIssuer, network } = getConfig();
-  const asset = new Asset("TFT", tftIssuer);
+  const { server, currencies, network } = getConfig();
   const account = await loadAccount(pair);
   const fee = await server.fetchBaseFee();
 
@@ -116,11 +128,15 @@ export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypa
     fee,
     networkPassphrase: network
   });
-  transaction.addOperation(
-    Operation.changeTrust({
-      asset: asset
-    })
-  );
+  Object.keys(currencies).forEach( currency => {
+    const asset = new Asset(currencies[currency].asset_code, currencies[currency].issuer);
+    transaction.addOperation(
+      Operation.changeTrust({
+        asset: asset
+      })
+    );
+  })
+ 
   transaction.setTimeout(3000);
 
   const tx = transaction.build();
@@ -153,8 +169,8 @@ const migrateStellarAccount = async (tfchainAddress: String, stellarPair: Keypai
   console.log({ activateAccountresult });
 }
 
-export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, destination: string, amount: number, message: string = '') => {
-  const { server, tftIssuer } = getConfig();
+export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, destination: string, amount: number, message: string = '', currency: string = '') => {
+  const { server, currencies } = getConfig();
   // Transaction will hold a built transaction we can resubmit if the result is unknown.
   let transaction;
 
@@ -184,8 +200,7 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
         destination: destination,
         // Because Stellar allows transaction in many currencies, you must
         // specify the asset type. The special "native" asset represents Lumens.
-        // @Todo use tft asset?
-        asset: new Asset('TFT', tftIssuer),
+        asset: new Asset(currencies[currency].asset_code, currencies[currency].issuer),
         amount: amount.toFixed(3),
         source: sourceKeyPair.publicKey(),
       })
@@ -215,7 +230,7 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
 
     fundedTransaction = new Transaction(result.data.transaction_xdr, network)
 
-    if(!verifyTransaction(transaction, fundedTransaction)){
+    if(!verifyTransaction(transaction, fundedTransaction, currency)){
       throw new Error("Transaction verification failed.")
     }
 
@@ -247,12 +262,12 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
   }
 }
 
-export const verifyTransaction = (originalTransaction: Transaction, fundedTransaction: Transaction) => {
-  const { network, feeAmount, feeDestination, tftIssuer } = getConfig();
+export const verifyTransaction = (originalTransaction: Transaction, fundedTransaction: Transaction, currency: string) => {
+  const { network, feeAmount, feeDestination, currencies } = getConfig();
 
   let feePayment =  {
     destination: feeDestination,
-    asset: new Asset('TFT', tftIssuer),
+    asset: new Asset(currencies[currency].asset_code, currencies[currency].issuer),
     amount: feeAmount,
     source: originalTransaction.operations[0].source,
   }

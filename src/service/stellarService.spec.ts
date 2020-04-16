@@ -63,7 +63,7 @@ describe('stellar', () => {
         const walletEntropy2 = calculateWalletEntropyFromAccount(paymentSeedPhrase, 0);
         const keypairSavings = keypairFromAccount(walletEntropy2);
 
-        const fundedTransaction = await buildFundedPaymentTransaction(keypairDaily, keypairSavings.publicKey(), 1, 'test');
+        const fundedTransaction = await buildFundedPaymentTransaction(keypairDaily, keypairSavings.publicKey(), 1, 'test', 'FreeTFT');
         
         await submitFundedTransaction(fundedTransaction, keypairDaily);
     }, 30000);
