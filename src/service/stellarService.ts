@@ -213,7 +213,7 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
     console.log('transaction');
     console.log(result.data);
 
-    fundedTransaction = new Transaction(result.data, network)
+    fundedTransaction = new Transaction(result.data.transaction_xdr, network)
 
     if(!verifyTransaction(transaction, fundedTransaction)){
       throw new Error("Transaction verification failed.")
