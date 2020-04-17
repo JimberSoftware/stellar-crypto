@@ -255,7 +255,7 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
     console.log('Success! Results:', result);
 
   } catch (error) {
-    console.error('Something went wrong!', error.response.data);
+    console.error('Something went wrong!', error);
     // If the result is unknown (no response body, timeout etc.) we simply resubmit
     // already built transaction:
     // await server.submitTransaction(fundedTransaction);
