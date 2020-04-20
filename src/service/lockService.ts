@@ -18,10 +18,10 @@ export const fetchUnlockTransaction = async (unlockHash: string) => {
 };
 
 export const getLockedBalances = async (keyPair: Keypair) => {
-    const {server} = getConfig();
-
+    const {server, currencies} = getConfig();
+    
     const accounts = server.accounts().forSigner(keyPair.publicKey()).limit(100);
-
+    const allowedCurrencies = Object.keys(currencies)
     const accountRecord = await accounts.call();
     const signedAccounts = accountRecord.records
         .filter(a => a.id !== keyPair.publicKey());
@@ -31,7 +31,7 @@ export const getLockedBalances = async (keyPair: Keypair) => {
             return {
                 keyPair,
                 id: account.id,
-                balance: account.balances.find(b => b.asset_type === 'credit_alphanum4' && b.asset_code === 'TFT').balance,
+                balance: account.balances.find(b => b.asset_type !== 'native' && allowedCurrencies.includes(b.asset_code)),
                 unlockHash: unlockHashSigner?.key || null,
             }
         });
