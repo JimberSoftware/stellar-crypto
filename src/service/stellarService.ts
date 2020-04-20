@@ -18,7 +18,6 @@ export const getConfig: () => {
   server: Server;
   serverURL: string;
   network: string;
-  // tftIssuer: string;
   serviceUrl: string;
   feeDestination: string;
   feeAmount: string;
@@ -29,7 +28,6 @@ export const getConfig: () => {
 
   let serverURL = "https://horizon-testnet.stellar.org";
   let network = Networks.TESTNET;
-  // let tftIssuer = "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3";
   let serviceUrl =
     "https://testnet.threefold.io/threefoldfoundation";
   let feeDestination = "GAKONCKYJ7PRRKBZSWVPG3MURUNX4H44AB3CU2YGVKF2FD7KXJBB3XID"
@@ -49,9 +47,6 @@ export const getConfig: () => {
     serverURL =
       (<any>window)?.stellarServerUrl || "https://horizon.stellar.org";
     network = (<any>window)?.stellarNetwork || Networks.PUBLIC;
-    // tftIssuer =
-    //   (<any>window)?.tftIssuer ||
-    //   "GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47";
     serviceUrl = (<any>window)?.serviceUrl || ""; //@todo prod url?
     feeDestination = (<any>window)?.feeDestination || ""//@todo prod fee destination address;
     feeAmount = (<any>window)?.feeAmount || "0.1000000";
@@ -63,7 +58,6 @@ export const getConfig: () => {
     server,
     serverURL,
     network,
-    // tftIssuer,
     serviceUrl,
     feeDestination,
     feeAmount,
@@ -255,7 +249,7 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
     console.log('Success! Results:', result);
 
   } catch (error) {
-    console.error('Something went wrong!', error.response.data);
+    console.error('Something went wrong!', error);
     // If the result is unknown (no response body, timeout etc.) we simply resubmit
     // already built transaction:
     // await server.submitTransaction(fundedTransaction);
