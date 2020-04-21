@@ -37,7 +37,7 @@ export const getLockedBalances = async (keyPair: Keypair) => {
         });
 };
 
-export const transferLockedTokens = async (keyPair: Keypair, id: string, amount?: number) => {
+export const transferLockedTokens = async (keyPair: Keypair, id: string, asset_code: string, amount?: number) => {
 
     const {server, network, currencies} = getConfig();
 
@@ -55,7 +55,7 @@ export const transferLockedTokens = async (keyPair: Keypair, id: string, amount?
         builder.addOperation(
             Operation.payment({
                 destination: keyPair.publicKey(),
-                asset: new Asset('TFT', currencies["TFT"].issuer),
+                asset: new Asset(asset_code, currencies[asset_code].issuer),
                 amount: amount.toFixed(3),
                 source: id,
             })
@@ -65,7 +65,7 @@ export const transferLockedTokens = async (keyPair: Keypair, id: string, amount?
         Operation.changeTrust(
             {
                 source: id,
-                asset: new Asset('TFT', currencies["TFT"].issuer),
+                asset: new Asset(asset_code, currencies[asset_code].issuer),
                 limit: '0'
             }
         )

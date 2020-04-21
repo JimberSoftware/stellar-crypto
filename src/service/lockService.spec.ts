@@ -54,7 +54,7 @@ describe.skip('lockservice', () => {
         console.log(lockedFunds);
         // expect(lockedFunds.id).toEqual('GAQAI5BBINBXHTSODKNLJ6DWC7I75X25OKMAMOH3NV47VDMCCECOJL72');
         expect(lockedFunds.unlockHash).toEqual(null);
-        await transferLockedTokens(lockedFunds.keyPair, lockedFunds.id, Number(lockedFunds.balance))
+        await transferLockedTokens(lockedFunds.keyPair, lockedFunds.id, "TFT", Number(lockedFunds.balance))
     }, 300000);
 });
 
