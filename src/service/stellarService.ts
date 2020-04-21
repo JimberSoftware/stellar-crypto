@@ -247,6 +247,8 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
   try {
     const result = await server.submitTransaction(fundedTransaction);
     console.log('Success! Results:', result);
+    const {network} = getConfig();
+    return new Transaction(result.envelope_xdr, network)
 
   } catch (error) {
     console.error('Something went wrong!', error);

@@ -50,7 +50,7 @@ describe('stellar', () => {
         expect(accountResponse.accountId()).toBe('GBTJEFDDMA5N4TDBFLJGA6K3MQFNHR2KUUFYAKYCOAEE43JD4CP3UTQC');
     });
 
-    it('should do payment with tft', async () => {
+    it.skip('should do payment with tft', async () => {
 
         const paymentSeedPhrase = "enlist extend limb diet crucial broccoli inhale trick stuff sting talent runway announce surprise dog limb second sun april reason they produce search slab"
 
