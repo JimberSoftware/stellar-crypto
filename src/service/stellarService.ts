@@ -252,6 +252,7 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
     const result = await server.submitTransaction(fundedTransaction);
     console.log('Success! Results:', result);
     const {network} = getConfig();
+    //@todo: has error that needs to fix before transaction can be returned"Error: XDR Read Error: Unknown PublicKeyType member for value 2"
     return new Transaction(result.envelope_xdr, network)
 
   } catch (error) {
