@@ -19,8 +19,8 @@ export const fetchUnlockTransaction = async (unlockHash: string) => {
 
 export const getLockedBalances = async (keyPair: Keypair) => {
     const {server, currencies} = getConfig();
-    
-    const accounts = server.accounts().forSigner(keyPair.publicKey()).limit(100);
+
+    const accounts = server.accounts().forSigner(keyPair.publicKey()).limit(1000);
     const allowedCurrencies = Object.keys(currencies)
     const accountRecord = await accounts.call();
     const signedAccounts = accountRecord.records
