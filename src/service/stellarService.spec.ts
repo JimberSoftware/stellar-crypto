@@ -18,7 +18,7 @@ const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
 const keypair = keypairFromAccount(walletEntropy);
 
 const revineKeypair = revineAddressFromSeed(seedPhrase, 0);
-describe('stellar', () => {
+describe.skip('stellar', () => {
     // can only be done the once and generating an account for every tests isn't particulary good 💩
     it.skip('should generate an account', async () => {
 
@@ -45,7 +45,7 @@ describe('stellar', () => {
         }
     }, 60000);
 
-    it('should load an account', async () => {
+    it.skip('should load an account', async () => {
         let accountResponse = await loadAccount(keypair);
         expect(accountResponse.accountId()).toBe('GBTJEFDDMA5N4TDBFLJGA6K3MQFNHR2KUUFYAKYCOAEE43JD4CP3UTQC');
     });
@@ -64,7 +64,7 @@ describe('stellar', () => {
         const keypairSavings = keypairFromAccount(walletEntropy2);
 
         const fundedTransaction = await buildFundedPaymentTransaction(keypairDaily, keypairSavings.publicKey(), 1, 'test', 'FreeTFT');
-        
+
         await submitFundedTransaction(fundedTransaction, keypairDaily);
     }, 30000);
 
