@@ -1,4 +1,4 @@
-import { mnemonicToEntropy } from "bip39";
+import { mnemonicToEntropy, entropyToMnemonic } from "bip39";
 import { SiaBinaryEncoder } from "../tfchain/tfchain.encoding.siabin";
 import { blake2b } from "@waves/ts-lib-crypto";
 import { Keypair } from "stellar-sdk";
@@ -73,6 +73,14 @@ export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) =>
 
     return `01${publicKeyAsHex}${checksum}`
 };
+
+export function seedPhraseFromStellarSecret(secret: string): string {
+    const pair = Keypair.fromSecret(secret)
+    const entropy = pair.rawSecretKey()
+    const mnemonic = entropyToMnemonic(entropy)
+    return mnemonic
+}
+
 function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
     const splitSeedPhrase = seedPhrase.split(' ')
 
