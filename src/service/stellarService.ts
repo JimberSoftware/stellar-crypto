@@ -257,6 +257,17 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
 
   } catch (error) {
     console.error('Something went wrong!', error);
+    const errorcodes = error.response.data.extras.result_codes.operations
+    let errorDetails = null
+    errorcodes.find(e => {
+      //@todo add more error codes
+      switch (e) {
+        case "op_no_trust":
+          errorDetails = "The reveiving wallet doesn't have the required trustline"
+          break;        
+      }
+    })
+    throw Error(errorDetails)
     // If the result is unknown (no response body, timeout etc.) we simply resubmit
     // already built transaction:
     // await server.submitTransaction(fundedTransaction);
