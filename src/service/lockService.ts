@@ -82,6 +82,8 @@ export const transferLockedTokens = async (keyPair: Keypair, id: string, asset_c
     try {
         await server.submitTransaction(transaction)
     } catch (e) {
-        console.log(e.response.data.extras.result_codes)
+        const resultCodes = e.response.data.extras.result_codes
+        console.log(resultCodes)
+        throw Error(`Failed to submit locked transaxtion ${resultCodes} `)
     }
 };
