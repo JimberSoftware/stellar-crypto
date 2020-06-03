@@ -56,7 +56,7 @@ export const transferLockedTokens = async (keyPair: Keypair, id: string, asset_c
             Operation.payment({
                 destination: keyPair.publicKey(),
                 asset: new Asset(asset_code, currencies[asset_code].issuer),
-                amount: amount.toFixed(3),
+                amount: amount.toFixed(7),
                 source: id,
             })
         );
