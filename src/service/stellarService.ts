@@ -199,7 +199,7 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
         // Because Stellar allows transaction in many currencies, you must
         // specify the asset type. The special "native" asset represents Lumens.
         asset: new Asset(currencies[currency].asset_code, currencies[currency].issuer),
-        amount: amount.toFixed(3),
+        amount: amount.toFixed(7),
         source: sourceKeyPair.publicKey(),
       })
     )
