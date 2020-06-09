@@ -29,7 +29,7 @@ export const getConfig: () => {
   let serverURL = "https://horizon-testnet.stellar.org";
   let network = Networks.TESTNET;
   let serviceUrl =
-    "https://testnet.threefold.io/threefoldfoundation";
+    "https://tokenservices.threefold.io/threefoldfoundation";
   let feeDestination = "GAKONCKYJ7PRRKBZSWVPG3MURUNX4H44AB3CU2YGVKF2FD7KXJBB3XID"
   let feeAmount = "0.1000000"
   let currencies = {
@@ -253,7 +253,7 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
     console.log('Success! Results:', result);
     const {network} = getConfig();
     //@todo: has error that needs to fix before transaction can be returned"Error: XDR Read Error: Unknown PublicKeyType member for value 2"
-    return new Transaction(result.envelope_xdr, network)
+    // return new Transaction(result.envelope_xdr, network)
 
   } catch (error) {
     console.error('Something went wrong!', error);
