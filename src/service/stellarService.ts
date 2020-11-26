@@ -6,7 +6,6 @@ import StellarSdk, {
   Operation,
   Asset,
   Networks,
-  Network,
   Memo,
   BASE_FEE,
   Transaction
@@ -120,7 +119,7 @@ export const convertTokens: (tfchainAddress: String, stellarAddress: String) => 
 export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypair) => {
   const { server, currencies, network } = getConfig();
   const account = await loadAccount(pair);
-  const fee = await server.fetchBaseFee();
+  const fee = String(await server.fetchBaseFee());
 
   const transaction = new TransactionBuilder(account, {
     fee,
@@ -190,7 +189,7 @@ export const buildFundedPaymentTransaction = async (sourceKeyPair: Keypair, dest
   const sourceAccount = await server.loadAccount(sourceKeyPair.publicKey());
   // Start building the transaction.
   transaction = new TransactionBuilder(sourceAccount, {
-    fee: 0,
+    fee: '0',
     networkPassphrase: Networks.TESTNET, //@todo change to config network
   })
     .addOperation(
