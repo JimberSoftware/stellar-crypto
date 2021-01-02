@@ -1,17 +1,15 @@
 import StellarSdk, {
   AccountResponse,
-  Keypair,
-  Server,
-  TransactionBuilder,
-  Operation,
   Asset,
-  Networks,
+  Keypair,
   Memo,
-  BASE_FEE,
-  Transaction
+  Networks,
+  Operation,
+  Server,
+  Transaction,
+  TransactionBuilder
 } from "stellar-sdk";
 import axios from 'axios';
-import {log} from "../tfchain/math";
 
 export const getConfig: () => {
   server: Server;
@@ -28,7 +26,7 @@ export const getConfig: () => {
   let serverURL = "https://horizon-testnet.stellar.org";
   let network = Networks.TESTNET;
   let serviceUrl =
-    "https://tokenservices.threefold.io/threefoldfoundation";
+    "https://testnet.threefold.io/threefoldfoundation";
   let feeDestination = "GAKONCKYJ7PRRKBZSWVPG3MURUNX4H44AB3CU2YGVKF2FD7KXJBB3XID"
   let feeAmount = "0.1000000"
   let currencies = {
@@ -69,15 +67,22 @@ export const getConfig: () => {
 };
 
 export const generateActivationCode = async (keyPair: Keypair) => {
-  const { serviceUrl } = getConfig();
+  const transaction = await fetchAccountActivationTransaction(keyPair);
+  await submitAccountActivationTransaction(transaction, keyPair);
 
-  const response = await axios.post(`${serviceUrl}/activation_service/create_activation_code`, {
-    args: {
-      address: keyPair.publicKey(),
-    }
-  });
-
-  return {...response.data}
+  return {activation_code: "000", phonenumbers: ['000'], address: keyPair.publicKey()};
+  //
+  // no longer used
+  //
+  // const { serviceUrl } = getConfig();
+  //
+  // const response = await axios.post(`${serviceUrl}/activation_service/create_activation_code`, {
+  //   args: {
+  //     address: keyPair.publicKey(),
+  //   }
+  // });
+  //
+  // return {...response.data}
 };
 
 export const migrateAccount: (
@@ -133,7 +138,7 @@ export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypa
       })
     );
   })
- 
+
   transaction.setTimeout(3000);
 
   const tx = transaction.build();
@@ -161,7 +166,6 @@ const migrateStellarAccount = async (tfchainAddress: String, stellarPair: Keypai
       address: stellarPair.publicKey()
     }
   });
-  // const response = await fetch(`${serviceUrl}/activate_account`, requestOptions);
   const activateAccountresult = response.data;
   console.log({ activateAccountresult });
 }
@@ -263,7 +267,7 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
       switch (e) {
         case "op_no_trust":
           errorDetails = "The reveiving wallet doesn't have the required trustline"
-          break;        
+          break;
       }
     })
     throw Error(errorDetails)
@@ -293,7 +297,7 @@ export const verifyTransaction = (originalTransaction: Transaction, fundedTransa
     || !checkPayment(<Operation.Payment>originalTransaction.operations[0], <Operation.Payment>fundedTransaction.operations[0])
     || !checkPayment(<Operation.Payment>feePayment, <Operation.Payment>fundedTransaction.operations[1])
     || originalTransaction.memo.type !== fundedTransaction.memo.type
-    || originalTransaction.memo.value !== fundedTransaction.memo.value.toString() 
+    || originalTransaction.memo.value !== fundedTransaction.memo.value.toString()
     ){
     return false
   }
@@ -309,4 +313,27 @@ export const checkPayment = (originalOperation: Operation.Payment, fundedOperati
     return false
   }
   return true
+}
+
+export const fetchAccountActivationTransaction= async (stellarPair: Keypair) => {
+
+  const { serviceUrl, network } = getConfig();
+
+  const response = await axios.post(`${serviceUrl}/activation_service/activate_account`, {address: stellarPair.publicKey()});
+  const activateAccountResult = JSON.parse(response.data)?.activation_transaction;
+
+  if (!activateAccountResult){
+    throw Error('no activationTransaction')
+  }
+
+  return new Transaction(activateAccountResult, network);
+}
+
+export const submitAccountActivationTransaction = async (transaction: Transaction, keypair: Keypair) => {
+  // @todo: validate transaction
+  
+  transaction.sign(keypair)
+
+  const {server} = getConfig();
+  await server.submitTransaction(transaction)
 }
