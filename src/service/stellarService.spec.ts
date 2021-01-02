@@ -17,7 +17,7 @@ const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
 const keypair = keypairFromAccount(walletEntropy);
 
 const revineKeypair = revineAddressFromSeed(seedPhrase, 0);
-describe('stellar', () => {
+describe.skip('stellar', () => {
     // can only be done the once and generating an account for every tests isn't particulary good 💩
     it('should generate an account', async () => {
 
