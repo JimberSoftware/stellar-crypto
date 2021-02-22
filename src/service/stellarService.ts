@@ -294,8 +294,8 @@ export const verifyTransaction = (originalTransaction: Transaction, fundedTransa
   // check if memo hasn't been changed @todo how to check the memo text?
   if( fundedTransaction.signatures.length !== 1
     || fundedTransaction.operations.length !== 2
-    || !checkPayment(<Operation.Payment>originalTransaction.operations[0], <Operation.Payment>fundedTransaction.operations[0])
-    || !checkPayment(<Operation.Payment>feePayment, <Operation.Payment>fundedTransaction.operations[1])
+    || !checkPayment(<Operation.Payment>originalTransaction.operations[0], <Operation.Payment>fundedTransaction.operations[0], false)
+    || !checkPayment(<Operation.Payment>feePayment, <Operation.Payment>fundedTransaction.operations[1], true)
     || originalTransaction.memo.type !== fundedTransaction.memo.type
     || originalTransaction.memo.value !== fundedTransaction.memo.value.toString()
     ){
@@ -304,11 +304,11 @@ export const verifyTransaction = (originalTransaction: Transaction, fundedTransa
   return true
 }
 
-export const checkPayment = (originalOperation: Operation.Payment, fundedOperation: Operation.Payment) => {
+export const checkPayment = (originalOperation: Operation.Payment, fundedOperation: Operation.Payment, isFee=false) => {
   if (originalOperation.destination !== fundedOperation.destination
       || originalOperation.asset.issuer !== fundedOperation.asset.issuer
       || originalOperation.asset.code !== fundedOperation.asset.code
-      || originalOperation.amount !== fundedOperation.amount
+      || ((isFee && Number(fundedOperation.amount)>0.1) || (originalOperation.amount !== fundedOperation.amount))
       || originalOperation.source !== fundedOperation.source) {
     return false
   }
