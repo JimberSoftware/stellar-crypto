@@ -308,8 +308,12 @@ export const checkPayment = (originalOperation: Operation.Payment, fundedOperati
   if (originalOperation.destination !== fundedOperation.destination
       || originalOperation.asset.issuer !== fundedOperation.asset.issuer
       || originalOperation.asset.code !== fundedOperation.asset.code
-      || ((isFee && Number(fundedOperation.amount)>0.1) || (originalOperation.amount !== fundedOperation.amount))
+      || originalOperation.amount !== fundedOperation.amount
       || originalOperation.source !== fundedOperation.source) {
+        // Because fee can be less then 0.1
+      if (isFee && Number(fundedOperation.amount)<0.1){
+        return true
+      }
     return false
   }
   return true
