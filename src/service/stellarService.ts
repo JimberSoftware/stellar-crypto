@@ -238,6 +238,16 @@ export const buildFundedPaymentTransaction = async (
             .addOperation(feePayment)
             // A memo allows you to add your own metadata to a transaction. It's
             // optional and does not affect how Stellar treats the transaction.
+            .addOperation(
+                Operation.payment({
+                    destination: destination,
+                    // Because Stellar allows transaction in many currencies, you must
+                    // specify the asset type. The special "native" asset represents Lumens.
+                    asset: asset,
+                    amount: amount.toFixed(7),
+                    source: sourceKeyPair.publicKey(),
+                })
+            )
             .addMemo(Memo.text(message))
             // Wait a maximum of three minutes for the transaction
             .setTimeout(86400)
