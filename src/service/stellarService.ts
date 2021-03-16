@@ -10,6 +10,7 @@ import StellarSdk, {
     TransactionBuilder,
 } from 'stellar-sdk';
 import axios from 'axios';
+import { makeFundPayment } from './fundService';
 
 export const getConfig: () => {
     server: Server;
@@ -204,9 +205,8 @@ export const buildFundedPaymentTransaction = async (
     message: string = '',
     currency: string = ''
 ) => {
-    const { server, currencies } = getConfig();
+    const { server, currencies, network, serviceUrl } = getConfig();
     // Transaction will hold a built transaction we can resubmit if the result is unknown.
-    let transaction;
 
     try {
         await server.loadAccount(destination);
@@ -223,62 +223,26 @@ export const buildFundedPaymentTransaction = async (
     // the transaction fee when the transaction fails.
     const sourceAccount = await server.loadAccount(sourceKeyPair.publicKey());
     // Start building the transaction.
-    transaction = new TransactionBuilder(sourceAccount, {
-        fee: '0',
-        networkPassphrase: Networks.TESTNET, //@todo change to config network
-    })
-        .addOperation(
-            Operation.payment({
-                destination: destination,
-                // Because Stellar allows transaction in many currencies, you must
-                // specify the asset type. The special "native" asset represents Lumens.
-                asset: new Asset(
-                    currencies[currency].asset_code,
-                    currencies[currency].issuer
-                ),
-                amount: amount.toFixed(7),
-                source: sourceKeyPair.publicKey(),
-            })
-        )
-        // A memo allows you to add your own metadata to a transaction. It's
-        // optional and does not affect how Stellar treats the transaction.
-        .addMemo(Memo.text(message))
-        // Wait a maximum of three minutes for the transaction
-        .setTimeout(86400)
-        .build();
-    const xdrTransaction = transaction.toXDR();
-    console.log(xdrTransaction);
+    const asset = new Asset(
+        currencies[currency].asset_code,
+        currencies[currency].issuer
+    );
 
-    const { serviceUrl, network } = getConfig();
+    const feePayment = await makeFundPayment(sourceKeyPair.publicKey(), asset);
 
-    let fundedTransaction: Transaction;
-    try {
-        const result = await axios.post(
-            `${serviceUrl}/transactionfunding_service/fund_transaction`,
-            {
-                args: {
-                    transaction: xdrTransaction,
-                },
-            }
-        );
-
-        console.log('transaction');
-        console.log(result.data);
-
-        fundedTransaction = new Transaction(
-            result.data.transaction_xdr,
-            network
-        );
-
-        if (!verifyTransaction(transaction, fundedTransaction, currency)) {
-            throw new Error('Transaction verification failed.');
-        }
-
-        return fundedTransaction;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
+    return (
+        new TransactionBuilder(sourceAccount, {
+            fee: '0',
+            networkPassphrase: network,
+        })
+            .addOperation(feePayment)
+            // A memo allows you to add your own metadata to a transaction. It's
+            // optional and does not affect how Stellar treats the transaction.
+            .addMemo(Memo.text(message))
+            // Wait a maximum of three minutes for the transaction
+            .setTimeout(86400)
+            .build()
+    );
 };
 
 export const submitFundedTransaction = async (
@@ -289,31 +253,18 @@ export const submitFundedTransaction = async (
     fundedTransaction.sign(sourceKeyPair);
     // And finally, send it off to Stellar!
 
-    const { server } = getConfig();
-
+    const { serviceUrl } = getConfig();
     try {
-        const result = await server.submitTransaction(fundedTransaction);
-        console.log('Success! Results:', result);
-        const { network } = getConfig();
-        //@todo: has error that needs to fix before transaction can be returned"Error: XDR Read Error: Unknown PublicKeyType member for value 2"
-        // return new Transaction(result.envelope_xdr, network)
+        const result = await axios.post(
+            `${serviceUrl}/transactionfunding_service/fund_transaction`,
+            {
+                args: {
+                    transaction: fundedTransaction.toXDR(),
+                },
+            }
+        );
     } catch (error) {
         console.error('Something went wrong!', error);
-        const errorcodes = error.response.data.extras.result_codes.operations;
-        let errorDetails = null;
-        errorcodes.find(e => {
-            //@todo add more error codes
-            switch (e) {
-                case 'op_no_trust':
-                    errorDetails =
-                        "The reveiving wallet doesn't have the required trustline";
-                    break;
-            }
-        });
-        throw Error(errorDetails);
-        // If the result is unknown (no response body, timeout etc.) we simply resubmit
-        // already built transaction:
-        // await server.submitTransaction(fundedTransaction);
     }
 };
 

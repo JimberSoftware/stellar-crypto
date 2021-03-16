@@ -31,3 +31,4 @@ export * from './service/cryptoService';
 export * from './service/lockService';
 export * from './service/rivineService';
 export * from './service/stellarService';
+export * from './service/fundService';
