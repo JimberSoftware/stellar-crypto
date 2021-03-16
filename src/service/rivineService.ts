@@ -1,7 +1,9 @@
-import { Keypair, StrKey } from "stellar-sdk";
-import { encodeHex } from "./cryptoService";
+import { Keypair, StrKey } from 'stellar-sdk';
+import { encodeHex } from './cryptoService';
 
-export const convertStellarAddressToRivine: (pair: Keypair) => string = (pair: Keypair) => {
+export const convertStellarAddressToRivine: (pair: Keypair) => string = (
+    pair: Keypair
+) => {
     throw new Error('not implemented yet');
 
     //back to rivine
@@ -15,4 +17,3 @@ export const convertStellarAddressToRivine: (pair: Keypair) => string = (pair: K
     // fmt.Println("Rivine address from Stellar address:", rivineFromstellarUnlockHash.String())
     //     return rivineFromstellarUnlockHash
 };
-
