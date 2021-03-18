@@ -32,9 +32,9 @@ export const getLockedBalances = async (keyPair: Keypair) => {
         .limit(200);
     const allowedCurrencies = Object.keys(currencies);
     const accountRecord = await accounts.call();
-    const signedAccounts = accountRecord.records.filter(
-        a => a.id !== keyPair.publicKey()
-    );
+    const signedAccounts = accountRecord.records
+        .filter(a => a.id !== keyPair.publicKey())
+        .filter(a => !Object.keys(a.data_attr).includes('tft-vesting'));
     return signedAccounts.map(account => {
         const unlockHashSigner = account.signers.find(
             s => s.type === 'preauth_tx'
