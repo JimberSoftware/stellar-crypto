@@ -33,3 +33,4 @@ export * from './service/rivineService';
 export * from './service/stellarService';
 export * from './service/fundService';
 export * from './service/vestingService';
+export * from './service/bscService';
