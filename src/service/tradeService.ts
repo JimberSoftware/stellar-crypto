@@ -1,4 +1,4 @@
-import { Asset, Keypair, Operation, OperationOptions, TransactionBuilder } from 'stellar-sdk';
+import { Asset, Keypair, Operation, OperationOptions, TransactionBuilder, xdr } from 'stellar-sdk';
 import { getConfig, loadAccount, submitFundedTransaction } from './stellarService';
 
 function getTradeOperation(
@@ -45,10 +45,40 @@ export const sellAssetForTFT = async (
     const transaction = transactionBuilder.build();
 
     // fee_bump
-    const result = await submitFundedTransaction(transaction, keyPair);
+    const { transactionhash } = await submitFundedTransaction(transaction, keyPair);
 
-    console.log(result);
-    return 0;
+    if (!transactionhash) {
+        throw new Error('transaction not found');
+    }
+
+    if (amount === 0) {
+        return offerId;
+    }
+
+    const submittedTransactionCallBuilder = server.transactions().includeFailed(true).transaction(transactionhash);
+
+    const submittedTransaction = await submittedTransactionCallBuilder.call();
+
+    const resultXdr = submittedTransaction.result_xdr;
+    console.log({ resultXdr });
+    const result = xdr.TransactionResult.fromXDR(resultXdr, 'base64');
+
+    const submitedOfferId = result
+        ?.result()
+        ?.innerResultPair()
+        ?.result()
+        ?.result()
+        ?.results()[0]
+        ?.tr()
+        ?.manageSellOfferResult()
+        ?.success()
+        ?.offer()
+        ?.offer()
+        ?.offerId()?.low;
+
+    if (!submitedOfferId) throw new Error('no offer id found');
+
+    return submitedOfferId;
 };
 
 export const sellTft = async (
@@ -77,5 +107,5 @@ export const closeTradeOffer = async (keyPair: Keypair, offerid: number) => {
         throw new Error(`offerid not found: ${offerid}`);
     }
 
-    await sellAssetForTFT(keyPair, existingTradeOffer.buying.asset_code, Number(existingTradeOffer.price), 0, offerid);
+    await sellAssetForTFT(keyPair, existingTradeOffer.selling.asset_code, Number(existingTradeOffer.price), 0, offerid);
 };
