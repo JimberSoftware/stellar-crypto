@@ -27,13 +27,16 @@ export const getConfig: () => {
     let serverURL = 'https://horizon-testnet.stellar.org';
     let network = Networks.TESTNET;
     let serviceUrl = 'https://testnet.threefold.io/threefoldfoundation';
-    let feeDestination =
-        'GAKONCKYJ7PRRKBZSWVPG3MURUNX4H44AB3CU2YGVKF2FD7KXJBB3XID';
+    let feeDestination = 'GAKONCKYJ7PRRKBZSWVPG3MURUNX4H44AB3CU2YGVKF2FD7KXJBB3XID';
     let feeAmount = '0.1000000';
     let currencies = {
         TFT: {
             asset_code: 'TFT',
             issuer: 'GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3',
+        },
+        BTC: {
+            asset_code: 'BTC',
+            issuer: 'GBMDRYGRFNPCGNRYVTHOPFE7F7L566ZLZM7XFQ2UWWIE3NVSO7FA5MFY',
         },
         TFTA: {
             asset_code: 'TFTA',
@@ -46,8 +49,7 @@ export const getConfig: () => {
     };
 
     if (typeof window !== 'undefined') {
-        serverURL =
-            (<any>window)?.stellarServerUrl || 'https://horizon.stellar.org';
+        serverURL = (<any>window)?.stellarServerUrl || 'https://horizon.stellar.org';
         network = (<any>window)?.stellarNetwork || Networks.PUBLIC;
         serviceUrl = (<any>window)?.serviceUrl || ''; //@todo prod url?
         feeDestination = (<any>window)?.feeDestination || ''; //@todo prod fee destination address;
@@ -90,10 +92,10 @@ export const generateActivationCode = async (keyPair: Keypair) => {
     // return {...response.data}
 };
 
-export const migrateAccount: (
+export const migrateAccount: (stellarPair: Keypair, tfchainAddress: String) => Promise<void> = async (
     stellarPair: Keypair,
     tfchainAddress: String
-) => Promise<void> = async (stellarPair: Keypair, tfchainAddress: String) => {
+) => {
     console.log(
         JSON.stringify({
             tfchain_address: tfchainAddress,
@@ -109,34 +111,27 @@ export const migrateAccount: (
     await convertTokens(tfchainAddress, stellarPair.publicKey());
 };
 
-export const loadAccount: (pair: Keypair) => Promise<AccountResponse> = async (
-    pair: Keypair
-) => {
+export const loadAccount: (pair: Keypair) => Promise<AccountResponse> = async (pair: Keypair) => {
     const { server } = getConfig();
     return await server.loadAccount(pair.publicKey());
 };
-export const convertTokens: (
+export const convertTokens: (tfchainAddress: String, stellarAddress: String) => Promise<void> = async (
     tfchainAddress: String,
     stellarAddress: String
-) => Promise<void> = async (tfchainAddress: String, stellarAddress: String) => {
+) => {
     const { serviceUrl } = getConfig();
 
-    const response = await axios.post(
-        `${serviceUrl}/conversion_service/migrate_tokens`,
-        {
-            args: {
-                tfchain_address: tfchainAddress,
-                stellar_address: stellarAddress,
-            },
-        }
-    );
+    const response = await axios.post(`${serviceUrl}/conversion_service/migrate_tokens`, {
+        args: {
+            tfchain_address: tfchainAddress,
+            stellar_address: stellarAddress,
+        },
+    });
     const result = response.data;
     console.log(result);
 };
 
-export const addTrustLine: (pair: Keypair) => Promise<void> = async (
-    pair: Keypair
-) => {
+export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypair) => {
     const { server, currencies, network } = getConfig();
     const account = await loadAccount(pair);
     const fee = String(await server.fetchBaseFee());
@@ -150,10 +145,7 @@ export const addTrustLine: (pair: Keypair) => Promise<void> = async (
             return;
         }
 
-        const asset = new Asset(
-            currencies[currency].asset_code,
-            currencies[currency].issuer
-        );
+        const asset = new Asset(currencies[currency].asset_code, currencies[currency].issuer);
         transaction.addOperation(
             Operation.changeTrust({
                 asset: asset,
@@ -168,10 +160,7 @@ export const addTrustLine: (pair: Keypair) => Promise<void> = async (
     const trustlineResult = await server.submitTransaction(tx);
     console.log(trustlineResult);
 };
-const migrateStellarAccount = async (
-    tfchainAddress: String,
-    stellarPair: Keypair
-) => {
+const migrateStellarAccount = async (tfchainAddress: String, stellarPair: Keypair) => {
     const requestOptions = {
         method: 'POST',
         body: JSON.stringify({
@@ -185,15 +174,12 @@ const migrateStellarAccount = async (
         },
     };
     const { serviceUrl } = getConfig();
-    const response = await axios.post(
-        `${serviceUrl}/conversion_service/activate_account`,
-        {
-            args: {
-                tfchain_address: tfchainAddress,
-                address: stellarPair.publicKey(),
-            },
-        }
-    );
+    const response = await axios.post(`${serviceUrl}/conversion_service/activate_account`, {
+        args: {
+            tfchain_address: tfchainAddress,
+            address: stellarPair.publicKey(),
+        },
+    });
     const activateAccountresult = response.data;
     console.log({ activateAccountresult });
 };
@@ -223,10 +209,7 @@ export const buildFundedPaymentTransaction = async (
     // the transaction fee when the transaction fails.
     const sourceAccount = await server.loadAccount(sourceKeyPair.publicKey());
     // Start building the transaction.
-    const asset = new Asset(
-        currencies[currency].asset_code,
-        currencies[currency].issuer
-    );
+    const asset = new Asset(currencies[currency].asset_code, currencies[currency].issuer);
 
     const feePayment = await makeFundPayment(sourceKeyPair.publicKey(), asset);
 
@@ -255,24 +238,19 @@ export const buildFundedPaymentTransaction = async (
     );
 };
 
-export const submitFundedTransaction = async (
-    fundedTransaction: Transaction,
-    sourceKeyPair: Keypair
-) => {
+export const submitFundedTransaction = async (fundedTransaction: Transaction, sourceKeyPair: Keypair) => {
     // Sign the transaction to prove you are actually the person sending it.
     fundedTransaction.sign(sourceKeyPair);
     // And finally, send it off to Stellar!
 
     const { serviceUrl } = getConfig();
     try {
-        const result = await axios.post(
-            `${serviceUrl}/transactionfunding_service/fund_transaction`,
-            {
-                args: {
-                    transaction: fundedTransaction.toXDR(),
-                },
-            }
-        );
+        const response = await axios.post(`${serviceUrl}/transactionfunding_service/fund_transaction`, {
+            args: {
+                transaction: fundedTransaction.toXDR(),
+            },
+        });
+        return response.data;
     } catch (error) {
         console.error('Something went wrong!', error);
     }
@@ -309,20 +287,13 @@ export const verifyTransaction = (
 
     const referenceFeePayment = {
         destination: feeDestination,
-        asset: new Asset(
-            currencies[currency].asset_code,
-            currencies[currency].issuer
-        ),
+        asset: new Asset(currencies[currency].asset_code, currencies[currency].issuer),
         amount: feeAmount,
         source: originalTransaction.operations[0].source,
     };
     // check feePayment with first payment of funded
     if (
-        !checkPayment(
-            <Operation.Payment>referenceFeePayment,
-            <Operation.Payment>fundedTransaction.operations[1],
-            true
-        )
+        !checkPayment(<Operation.Payment>referenceFeePayment, <Operation.Payment>fundedTransaction.operations[1], true)
     ) {
         return false;
     }
@@ -331,10 +302,7 @@ export const verifyTransaction = (
     if (originalTransaction.memo.type !== fundedTransaction.memo.type) {
         return false;
     }
-    if (
-        originalTransaction.memo.value !==
-        fundedTransaction.memo.value.toString()
-    ) {
+    if (originalTransaction.memo.value !== fundedTransaction.memo.value.toString()) {
         return false;
     }
 
@@ -362,17 +330,13 @@ export const checkPayment = (
     return true;
 };
 
-export const fetchAccountActivationTransaction = async (
-    stellarPair: Keypair
-) => {
+export const fetchAccountActivationTransaction = async (stellarPair: Keypair) => {
     const { serviceUrl, network } = getConfig();
 
-    const response = await axios.post(
-        `${serviceUrl}/activation_service/activate_account`,
-        { address: stellarPair.publicKey() }
-    );
-    const activateAccountResult = JSON.parse(response.data)
-        ?.activation_transaction;
+    const response = await axios.post(`${serviceUrl}/activation_service/activate_account`, {
+        address: stellarPair.publicKey(),
+    });
+    const activateAccountResult = JSON.parse(response.data)?.activation_transaction;
 
     if (!activateAccountResult) {
         throw Error('no activationTransaction');
@@ -381,10 +345,7 @@ export const fetchAccountActivationTransaction = async (
     return new Transaction(activateAccountResult, network);
 };
 
-export const submitAccountActivationTransaction = async (
-    transaction: Transaction,
-    keypair: Keypair
-) => {
+export const submitAccountActivationTransaction = async (transaction: Transaction, keypair: Keypair) => {
     // @todo: validate transaction
 
     transaction.sign(keypair);

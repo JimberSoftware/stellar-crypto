@@ -1,8 +1,4 @@
-import {
-    calculateWalletEntropyFromAccount,
-    keypairFromAccount,
-    revineAddressFromSeed,
-} from './cryptoService';
+import { calculateWalletEntropyFromAccount, keypairFromAccount, revineAddressFromSeed } from './cryptoService';
 import {
     migrateAccount,
     loadAccount,
@@ -14,6 +10,7 @@ import {
     submitAccountActivationTransaction,
 } from './stellarService';
 import { generateMnemonic } from 'bip39';
+import { Keypair } from 'stellar-sdk';
 
 const seedPhrase: string =
     'treat gloom wrong topple learn device stable orchard essay bitter brand cattle amateur beach bulk build cluster quit survey news physical hole tower glass';
@@ -22,7 +19,7 @@ const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
 const keypair = keypairFromAccount(walletEntropy);
 
 const revineKeypair = revineAddressFromSeed(seedPhrase, 0);
-describe.skip('stellar', () => {
+describe('stellar', () => {
     // can only be done the once and generating an account for every tests isn't particulary good 💩
     it('should generate an account', async () => {
         console.log({ revine: revineKeypair, stellar: keypair.publicKey() });
@@ -48,38 +45,22 @@ describe.skip('stellar', () => {
 
     it.skip('should load an account', async () => {
         let accountResponse = await loadAccount(keypair);
-        expect(accountResponse.accountId()).toBe(
-            '' + 'GBTJEFDDMA5N4TDBFLJGA6K3MQFNHR2KUUFYAKYCOAEE43JD4CP3UTQC'
-        );
+        expect(accountResponse.accountId()).toBe('' + 'GBTJEFDDMA5N4TDBFLJGA6K3MQFNHR2KUUFYAKYCOAEE43JD4CP3UTQC');
     });
 
-    it.skip('should do payment with tft', async () => {
-        const paymentSeedPhrase =
-            'enlist extend limb diet crucial broccoli inhale trick stuff sting talent runway announce surprise dog limb second sun april reason they produce search slab';
-
-        const walletEntropy = calculateWalletEntropyFromAccount(
-            paymentSeedPhrase,
-            0
-        );
-        const keypairDaily = keypairFromAccount(walletEntropy);
-
-        console.log(keypairDaily.secret());
-
-        const walletEntropy2 = calculateWalletEntropyFromAccount(
-            paymentSeedPhrase,
-            0
-        );
-        const keypairSavings = keypairFromAccount(walletEntropy2);
+    it('should do payment with tft', async () => {
+        const keypairDaily = Keypair.fromSecret('SB5UP6KAFNVYIRZ7M3CUUHHWOA6BCO3VFWEBL4HCM44SNHUBR76I72WP');
 
         const fundedTransaction = await buildFundedPaymentTransaction(
             keypairDaily,
-            keypairSavings.publicKey(),
+            'GA6FBB33B6FVUSFBQSGBR47PKG2UQV6CTFDJLQEBUDKGLEMMASJYDRC2',
             1,
             'test',
             'FreeTFT'
         );
 
-        await submitFundedTransaction(fundedTransaction, keypairDaily);
+        const response = await submitFundedTransaction(fundedTransaction, keypairDaily);
+        console.log(response);
     }, 30000);
 
     it('should generate activation code', async () => {

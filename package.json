@@ -22,7 +22,8 @@
     "stellar-base": "^4.0.3",
     "stellar-sdk": "^8.0.0",
     "tweetnacl-ts": "^1.0.3",
-    "tweetnacl-util": "^0.15.1"
+    "tweetnacl-util": "^0.15.1",
+    "web3": "^1.3.5"
   },
   "scripts": {
     "prebuild": "rm -rf dist && mkdir dist && cp -r src/tfchain dist/tfchain ",
