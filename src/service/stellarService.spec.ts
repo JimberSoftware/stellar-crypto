@@ -21,7 +21,7 @@ const keypair = keypairFromAccount(walletEntropy);
 const revineKeypair = revineAddressFromSeed(seedPhrase, 0);
 describe('stellar', () => {
     // can only be done the once and generating an account for every tests isn't particulary good 💩
-    it('should generate an account', async () => {
+    it.skip('should generate an account', async () => {
         console.log({ revine: revineKeypair, stellar: keypair.publicKey() });
 
         try {
@@ -63,7 +63,7 @@ describe('stellar', () => {
         console.log(response);
     }, 30000);
 
-    it('should generate activation code', async () => {
+    it.skip('should generate activation code', async () => {
         const seedPhrase: string = generateMnemonic(256);
 
         const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);
@@ -76,7 +76,7 @@ describe('stellar', () => {
         expect(typeof response.phonenumbers).toBe('object');
     }, 30000);
 
-    it('should activate account', async () => {
+    it.skip('should activate account', async () => {
         const seedPhrase: string = generateMnemonic(256);
 
         const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, 0);

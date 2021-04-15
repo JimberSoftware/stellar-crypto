@@ -45,7 +45,9 @@ export const sellAssetForTFT = async (
     const transaction = transactionBuilder.build();
 
     // fee_bump
-    const { transactionhash } = await submitFundedTransaction(transaction, keyPair);
+    const data = await submitFundedTransaction(transaction, keyPair);
+
+    const transactionhash = data?.transactionhash;
 
     if (!transactionhash) {
         throw new Error('transaction not found');

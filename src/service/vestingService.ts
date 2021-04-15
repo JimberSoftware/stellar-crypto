@@ -2,18 +2,12 @@ import { getConfig } from './stellarService';
 import { AccountResponse } from 'stellar-sdk';
 import axios, { AxiosResponse } from 'axios';
 
-export const checkVesting = async (
-    publicKey: string
-): Promise<AccountResponse> => {
+export const checkVesting = async (publicKey: string): Promise<AccountResponse> => {
     const { server } = getConfig();
 
-    const accountsWhereIsSigner = (
-        await server.accounts().forSigner(publicKey).limit(200).call()
-    ).records;
+    const accountsWhereIsSigner = (await server.accounts().forSigner(publicKey).limit(200).call()).records;
 
-    const accountsWhereIsSignerAndIsNotMe = accountsWhereIsSigner.filter(
-        acc => acc.account_id !== publicKey
-    );
+    const accountsWhereIsSignerAndIsNotMe = accountsWhereIsSigner.filter(acc => acc.account_id !== publicKey);
 
     const accountRecord = accountsWhereIsSignerAndIsNotMe.find(acc =>
         Object.keys(acc.data_attr).includes('tft-vesting')
@@ -32,23 +26,20 @@ export const checkVesting = async (
     return vestingAccount;
 };
 
-export const generateVestingAccount = async (
-    publicKey: string
-): Promise<AccountResponse> => {
+export const generateVestingAccount = async (publicKey: string): Promise<AccountResponse> => {
     const { serviceUrl } = getConfig();
     let response: AxiosResponse<any>;
     try {
-        response = await axios.post(
-            `${serviceUrl}/vesting_service/create_vesting_account`,
-            {
-                owner_address: publicKey,
-            }
-        );
+        response = await axios.post(`${serviceUrl}/vesting_service/create_vesting_account`, {
+            owner_address: publicKey,
+        });
     } catch (error) {
         throw new Error('Could not create vestingAccount');
     }
 
     const vestingAddress = response.data?.address;
+
+    if (!vestingAddress) throw new Error('Could not create vestingAccount');
 
     const { server } = getConfig();
 
