@@ -24,5 +24,5 @@ export * from './service/fundService';
 export * from './service/vestingService';
 export * from './service/bscService';
 export * from './service/trustlineService';
-export * from './service/tradeService';
 export * from './service/priceService';
+export * from './service/tradeService';

@@ -1,33 +1,37 @@
 import { Asset, Keypair, Operation, OperationOptions, TransactionBuilder, xdr } from 'stellar-sdk';
 import { getConfig, loadAccount, submitFundedTransaction } from './stellarService';
 
-function getTradeOperation(
+const getTradeOperation = (
     currencies: Object,
     sellAssetCode: string,
     buyAssetCode: string,
     amount: number,
     price: number,
     offerId: number
-) {
+) => {
     const sellAsset = new Asset(currencies[sellAssetCode].asset_code, currencies[sellAssetCode].issuer);
     const buyAsset = new Asset(currencies[buyAssetCode].asset_code, currencies[buyAssetCode].issuer);
     const sellOfferOptions: OperationOptions.ManageSellOffer = {
-        amount: amount.toFixed(8),
+        amount: amount.toFixed(7),
         buying: buyAsset,
-        price: price.toFixed(8),
+        price: price.toFixed(7),
         selling: sellAsset,
         offerId,
     };
     return Operation.manageSellOffer(sellOfferOptions);
-}
+};
 
-export const sellAssetForTFT = async (
+export const helloWorld = () => {
+    console.log('helloWorld');
+};
+
+export const sellAssetForTft = async (
     keyPair: Keypair,
     sellAssetCode: string,
     price: number,
     amount: number,
     offerId: number = 0
-): Promise<number> => {
+): Promise<{ closed: boolean; offerId?: number }> => {
     const account = await loadAccount(keyPair);
     const { currencies, server, network } = getConfig();
 
@@ -54,7 +58,9 @@ export const sellAssetForTFT = async (
     }
 
     if (amount === 0) {
-        return offerId;
+        return {
+            closed: true,
+        };
     }
 
     const submittedTransactionCallBuilder = server.transactions().includeFailed(true).transaction(transactionhash);
@@ -65,22 +71,28 @@ export const sellAssetForTFT = async (
     console.log({ resultXdr });
     const result = xdr.TransactionResult.fromXDR(resultXdr, 'base64');
 
-    const submitedOfferId = result
+    const manageOfferSuccessResult = result
         ?.result()
         ?.innerResultPair()
         ?.result()
         ?.result()
-        ?.results()[0]
+        ?.results()?.[0]
         ?.tr()
         ?.manageSellOfferResult()
-        ?.success()
-        ?.offer()
-        ?.offer()
-        ?.offerId()?.low;
+        ?.success();
 
+    const submitedOfferId = manageOfferSuccessResult?.offer()?.offer()?.offerId()?.low;
+
+    console.log({ submitedOfferId });
+
+    if (!submitedOfferId && manageOfferSuccessResult?.offersClaimed().length >= 1) {
+        return {
+            closed: true,
+        };
+    }
     if (!submitedOfferId) throw new Error('no offer id found');
 
-    return submitedOfferId;
+    return { closed: false, offerId: submitedOfferId };
 };
 
 export const sellTft = async (
@@ -109,5 +121,5 @@ export const closeTradeOffer = async (keyPair: Keypair, offerid: number) => {
         throw new Error(`offerid not found: ${offerid}`);
     }
 
-    await sellAssetForTFT(keyPair, existingTradeOffer.selling.asset_code, Number(existingTradeOffer.price), 0, offerid);
+    await sellAssetForTft(keyPair, existingTradeOffer.selling.asset_code, Number(existingTradeOffer.price), 0, offerid);
 };

@@ -6,22 +6,14 @@ import { sign_keyPair_fromSeed } from 'tweetnacl-ts';
 import { getEntropyFromPhrase } from 'mnemonicconversion2924';
 
 export const decodeHex: (hexString: String) => Uint8Array = hexString => {
-    return new Uint8Array(
-        hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16))
-    );
+    return new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 };
 
 export const encodeHex: (bytes: Uint8Array) => String = bytes => {
-    return bytes.reduce(
-        (str, byte) => str + byte.toString(16).padStart(2, '0'),
-        ''
-    );
+    return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 };
 
-export function calculateWalletEntropyFromAccount(
-    seedPhrase: string,
-    walletIndex: number
-): Uint8Array {
+export function calculateWalletEntropyFromAccount(seedPhrase: string, walletIndex: number): Uint8Array {
     var seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase);
 
     if (seed.length >= 33) {
@@ -50,10 +42,10 @@ export function keypairFromAccount(walletEntropy: Uint8Array): Keypair {
     return Keypair.fromRawEd25519Seed(<Buffer>walletEntropy);
 }
 
-export const revineAddressFromSeed: (
+export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) => String = (
     seedPhrase: string,
     walletIndex: number
-) => String = (seedPhrase: string, walletIndex: number) => {
+) => {
     var entropy = getSeedFromSeedPhrase(seedPhrase);
 
     if (entropy.length >= 33) {
@@ -73,39 +65,20 @@ export const revineAddressFromSeed: (
 
     const publicKey = asyncKeyPair.publicKey;
 
-    const prefix1 = new Uint8Array([
-        101,
-        100,
-        50,
-        53,
-        53,
-        49,
-        57,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        32,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-    ]);
+    const prefix1 = new Uint8Array([101, 100, 50, 53, 53, 49, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0]);
     const prefix2 = new Uint8Array([56, 0, 0, 0, 0, 0, 0, 0]);
 
     const encodedData = new Uint8Array([...prefix2, ...prefix1, ...publicKey]);
 
     var hash = blake2b(encodedData);
     var publicKeyAsHex = encodeHex(hash);
-    var checksum = encodeHex(blake2b(new Uint8Array([1, ...hash])).slice(0, 6));
+    const uint8Array = new Uint8Array([1, ...hash]);
+    const blake2b1 = blake2b(uint8Array);
+    console.log('here ? ');
+    const bytes = blake2b1.slice(0, 6);
+    console.log('here !');
+
+    var checksum = encodeHex(bytes);
 
     return `01${publicKeyAsHex}${checksum}`;
 };
@@ -125,10 +98,7 @@ function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
     }
 
     // App wallets
-    if (
-        splitSeedPhrase.length === 25 &&
-        splitSeedPhrase[splitSeedPhrase.length - 1] === 'stellar'
-    ) {
+    if (splitSeedPhrase.length === 25 && splitSeedPhrase[splitSeedPhrase.length - 1] === 'stellar') {
         splitSeedPhrase.pop();
         seedPhrase = splitSeedPhrase.join(' ');
 

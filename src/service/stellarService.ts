@@ -243,6 +243,8 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
     fundedTransaction.sign(sourceKeyPair);
     // And finally, send it off to Stellar!
 
+    console.log({ fundedTransaction: fundedTransaction.toXDR() });
+
     const { serviceUrl } = getConfig();
     try {
         const response = await axios.post(`${serviceUrl}/transactionfunding_service/fund_transaction`, {

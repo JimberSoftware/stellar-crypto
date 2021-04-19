@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getConfig } from './stellarService';
 import { Asset, Keypair, Operation, TransactionBuilder } from 'stellar-sdk';
 import { fundTrustLine } from './trustlineService';
-import { closeTradeOffer, getOpenTradeOffers, sellAssetForTFT, sellTft } from './tradeService';
+import { closeTradeOffer, getOpenTradeOffers, sellAssetForTft, sellTft } from './tradeService';
 
 const friendBot = async (address: string) => {
     await axios.get('https://friendbot.stellar.org/?addr=' + address);
@@ -52,7 +52,7 @@ describe('trading', () => {
     it('should submit trade Offer', async () => {
         const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
 
-        const offerId = await sellAssetForTFT(kp, 'BTC', 10, 1);
+        const offerId = await sellAssetForTft(kp, 'BTC', 0.00000239, 0.00099995);
 
         expect(offerId).not.toBe(0);
         expect(typeof offerId).toBe('number');
@@ -61,7 +61,7 @@ describe('trading', () => {
     it('should get open trade Offers', async () => {
         const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
 
-        await sellAssetForTFT(kp, 'BTC', 0.00000234, 1);
+        await sellAssetForTft(kp, 'BTC', 0.00000234, 1);
 
         const openTradeOffers = await getOpenTradeOffers(kp);
 
@@ -76,7 +76,7 @@ describe('trading', () => {
 
         const account = await server.loadAccount(kp.publicKey());
 
-        const originalOfferId = await sellAssetForTFT(kp, 'BTC', 10, 1);
+        const originalOfferId = await sellAssetForTft(kp, 'BTC', 10, 1);
 
         const openTradeOffers = await getOpenTradeOffers(kp);
 
@@ -111,7 +111,7 @@ describe('trading', () => {
         const kp2 = Keypair.fromSecret('SBG6Y47FAPHIBVD6MK37BBCBDW3MXCTODJG6SGJXYUGSZLTVULNJM6WQ');
 
         const assetCode = 'BTC';
-        await sellAssetForTFT(kp1, assetCode, 10, 1);
+        await sellAssetForTft(kp1, assetCode, 10, 1);
         await sellTft(kp2, assetCode, 0.02, 1);
     }, 60000);
 });
