@@ -20,33 +20,33 @@ const testAccountSecretWithTftAndBtc = 'SB5UP6KAFNVYIRZ7M3CUUHHWOA6BCO3VFWEBL4HC
 
 const asset_code = 'BTC';
 
-beforeAll(async () => {
-    const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
-
-    const openTradeOffers = await getOpenTradeOffers(kp);
-
-    for (const openTradeOffer of openTradeOffers) {
-        await closeTradeOffer(kp, Number(openTradeOffer.id));
-    }
-}, 60000);
-beforeEach(async () => {
-    const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
-
-    const openTradeOffers = await getOpenTradeOffers(kp);
-
-    for (const openTradeOffer of openTradeOffers) {
-        await closeTradeOffer(kp, Number(openTradeOffer.id));
-    }
-}, 60000);
-afterAll(async () => {
-    const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
-
-    const openTradeOffers = await getOpenTradeOffers(kp);
-
-    for (const openTradeOffer of openTradeOffers) {
-        await closeTradeOffer(kp, Number(openTradeOffer.id));
-    }
-}, 60000);
+// beforeAll(async () => {
+//     const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
+//
+//     const openTradeOffers = await getOpenTradeOffers(kp);
+//
+//     for (const openTradeOffer of openTradeOffers) {
+//         await closeTradeOffer(kp, Number(openTradeOffer.id));
+//     }
+// }, 60000);
+// beforeEach(async () => {
+//     const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
+//
+//     const openTradeOffers = await getOpenTradeOffers(kp);
+//
+//     for (const openTradeOffer of openTradeOffers) {
+//         await closeTradeOffer(kp, Number(openTradeOffer.id));
+//     }
+// }, 60000);
+// afterAll(async () => {
+//     const kp = Keypair.fromSecret(testAccountSecretWithTftAndBtc);
+//
+//     const openTradeOffers = await getOpenTradeOffers(kp);
+//
+//     for (const openTradeOffer of openTradeOffers) {
+//         await closeTradeOffer(kp, Number(openTradeOffer.id));
+//     }
+// }, 60000);
 
 describe.skip('trading', () => {
     it('should submit trade Offer', async () => {
