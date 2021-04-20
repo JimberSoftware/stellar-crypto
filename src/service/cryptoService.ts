@@ -74,9 +74,7 @@ export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) =>
     var publicKeyAsHex = encodeHex(hash);
     const uint8Array = new Uint8Array([1, ...hash]);
     const blake2b1 = blake2b(uint8Array);
-    console.log('here ? ');
     const bytes = blake2b1.slice(0, 6);
-    console.log('here !');
 
     var checksum = encodeHex(bytes);
 
