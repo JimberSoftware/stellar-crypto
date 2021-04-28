@@ -51,6 +51,12 @@ export const sellAssetForTft = async (
     // fee_bump
     const data = await submitFundedTransaction(transaction, keyPair);
 
+    if (amount === 0) {
+        return {
+            closed: true,
+        };
+    }
+
     const transactionhash = data?.transactionhash;
 
     if (!transactionhash) {
