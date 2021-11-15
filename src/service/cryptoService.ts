@@ -1,9 +1,10 @@
-import { mnemonicToEntropy, entropyToMnemonic } from 'bip39';
-import { SiaBinaryEncoder } from '../tfchain/tfchain.encoding.siabin';
+import { entropyToMnemonic, mnemonicToEntropy } from 'bip39';
+import { SiaBinaryEncoder } from '../util/SiaBinaryEncoder';
 import { blake2b } from '@waves/ts-lib-crypto';
 import { Keypair } from 'stellar-sdk';
 import { sign_keyPair_fromSeed } from 'tweetnacl-ts';
 import { getEntropyFromPhrase } from 'mnemonicconversion2924';
+import blake from 'blakejs';
 
 export const decodeHex: (hexString: String) => Uint8Array = hexString => {
     return new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
@@ -14,7 +15,7 @@ export const encodeHex: (bytes: Uint8Array) => String = bytes => {
 };
 
 export function calculateWalletEntropyFromAccount(seedPhrase: string, walletIndex: number): Uint8Array {
-    var seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase);
+    let seed: Uint8Array = getSeedFromSeedPhrase(seedPhrase);
 
     if (seed.length >= 33) {
         seed = seed.slice(0, 32);
@@ -24,18 +25,16 @@ export function calculateWalletEntropyFromAccount(seedPhrase: string, walletInde
         return seed;
     }
 
-    const encoder = SiaBinaryEncoder();
+    const encoder = new SiaBinaryEncoder();
 
-    encoder.add_array(seed);
+    encoder.addArray(seed);
 
     if (walletIndex != -1 && seed.length === 32) {
-        encoder.add_int(walletIndex);
+        encoder.addInt(walletIndex);
     }
 
     // h in go file
-    const blake2b1Hash: Uint8Array = blake2b(encoder.data);
-
-    return blake2b1Hash;
+    return blake.blake2b(encoder.data, undefined, 32);
 }
 
 export function keypairFromAccount(walletEntropy: Uint8Array): Keypair {
@@ -52,14 +51,14 @@ export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) =>
         entropy = entropy.slice(0, 32);
     }
 
-    let encoder = SiaBinaryEncoder();
-    encoder.add_array(entropy);
+    let encoder = new SiaBinaryEncoder();
+    encoder.addArray(entropy);
 
     if (walletIndex != -1) {
-        encoder.add_int(walletIndex);
+        encoder.addInt(walletIndex);
     }
 
-    const seed = blake2b(encoder.data);
+    const seed = blake.blake2b(encoder.data, undefined, 32);
 
     const asyncKeyPair = sign_keyPair_fromSeed(seed);
 
@@ -88,7 +87,7 @@ export function seedPhraseFromStellarSecret(secret: string): string {
     return mnemonic;
 }
 
-function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
+export function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
     const splitSeedPhrase = seedPhrase.split(' ');
 
     if (splitSeedPhrase.length === 29) {
