@@ -1,4 +1,4 @@
-import { entropyToMnemonic, mnemonicToEntropy } from 'bip39';
+import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
 import { SiaBinaryEncoder } from '../util/SiaBinaryEncoder';
 import { blake2b } from '@waves/ts-lib-crypto';
 import { Keypair } from 'stellar-sdk';
@@ -32,6 +32,8 @@ export function calculateWalletEntropyFromAccount(seedPhrase: string, walletInde
     if (walletIndex != -1 && seed.length === 32) {
         encoder.addInt(walletIndex);
     }
+
+    console.log(encoder.data);
 
     // h in go file
     return blake.blake2b(encoder.data, undefined, 32);
@@ -80,7 +82,7 @@ export const revineAddressFromSeed: (seedPhrase: string, walletIndex: number) =>
     return `01${publicKeyAsHex}${checksum}`;
 };
 
-export function seedPhraseFromStellarSecret(secret: string): string {
+export function seeedPhraseFromStellarSecret(secret: string): string {
     const pair = Keypair.fromSecret(secret);
     const entropy = pair.rawSecretKey();
     const mnemonic = entropyToMnemonic(entropy);
@@ -107,6 +109,8 @@ export function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
         arr.add(0);
 
         var modified = Uint8Array.from(arr);
+
+        console.log(modified);
         return modified;
     } else {
         const entropy = mnemonicToEntropy(seedPhrase);

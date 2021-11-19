@@ -9,7 +9,7 @@ import {
     fetchAccountActivationTransaction,
     submitAccountActivationTransaction,
 } from './stellarService';
-import { generateMnemonic } from 'bip39';
+import { generateMnemonic } from '@jimber/simple-bip39';
 import { Keypair } from 'stellar-sdk';
 
 const seedPhrase: string =
