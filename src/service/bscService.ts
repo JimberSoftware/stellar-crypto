@@ -7,3 +7,7 @@
 //
 //     return Buffer.from(address.replace('0x', ''), 'hex').toString('base64')
 // }
+
+export function convertBep20ToStellarMemo(address: string): string {
+    return Buffer.from(address.replace('0x', ''), 'hex').toString('base64');
+}
