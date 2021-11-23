@@ -16,6 +16,7 @@
   "dependencies": {
     "@waves/ts-lib-crypto": "^1.4.3",
     "axios": "^0.24.0",
+    "blakejs": "^1.1.1",
     "@jimber/simple-bip39": "^1.0.0",
     "mnemonicconversion2924": "^1.1.2",
     "stellar-base": "^6.0.6",
