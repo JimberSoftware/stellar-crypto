@@ -96,12 +96,6 @@ export const migrateAccount: (stellarPair: Keypair, tfchainAddress: String) => P
     stellarPair: Keypair,
     tfchainAddress: String
 ) => {
-    console.log(
-        JSON.stringify({
-            tfchain_address: tfchainAddress,
-            address: stellarPair.publicKey(),
-        })
-    );
     console.log('activate account');
 
     await migrateStellarAccount(tfchainAddress, stellarPair);
@@ -128,7 +122,6 @@ export const convertTokens: (tfchainAddress: String, stellarAddress: String) => 
         },
     });
     const result = response.data;
-    console.log(result);
 };
 
 export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypair) => {
@@ -158,7 +151,6 @@ export const addTrustLine: (pair: Keypair) => Promise<void> = async (pair: Keypa
     const tx = transaction.build();
     tx.sign(pair);
     const trustlineResult = await server.submitTransaction(tx);
-    console.log(trustlineResult);
 };
 const migrateStellarAccount = async (tfchainAddress: String, stellarPair: Keypair) => {
     const requestOptions = {
@@ -181,7 +173,6 @@ const migrateStellarAccount = async (tfchainAddress: String, stellarPair: Keypai
         },
     });
     const activateAccountresult = response.data;
-    console.log({ activateAccountresult });
 };
 
 export const buildFundedPaymentTransaction = async (
@@ -242,8 +233,6 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
     // Sign the transaction to prove you are actually the person sending it.
     fundedTransaction.sign(sourceKeyPair);
     // And finally, send it off to Stellar!
-
-    console.log({ fundedTransaction: fundedTransaction.toXDR() });
 
     const { serviceUrl } = getConfig();
     try {

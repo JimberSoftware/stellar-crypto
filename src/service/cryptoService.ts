@@ -33,8 +33,6 @@ export function calculateWalletEntropyFromAccount(seedPhrase: string, walletInde
         encoder.addInt(walletIndex);
     }
 
-    console.log(encoder.data);
-
     // h in go file
     return blake.blake2b(encoder.data, undefined, 32);
 }
@@ -110,7 +108,6 @@ export function getSeedFromSeedPhrase(seedPhrase: string): Uint8Array {
 
         var modified = Uint8Array.from(arr);
 
-        console.log(modified);
         return modified;
     } else {
         const entropy = mnemonicToEntropy(seedPhrase);

@@ -74,7 +74,6 @@ export const sellAssetForTft = async (
     const submittedTransaction = await submittedTransactionCallBuilder.call();
 
     const resultXdr = submittedTransaction.result_xdr;
-    console.log({ resultXdr });
     const result = xdr.TransactionResult.fromXDR(resultXdr, 'base64');
 
     const manageOfferSuccessResult = result
@@ -88,8 +87,6 @@ export const sellAssetForTft = async (
         ?.success();
 
     const submitedOfferId = manageOfferSuccessResult?.offer()?.offer()?.offerId()?.low;
-
-    console.log({ submitedOfferId });
 
     if (!submitedOfferId && manageOfferSuccessResult?.offersClaimed().length >= 1) {
         return {

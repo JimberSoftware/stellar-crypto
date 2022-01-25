@@ -73,11 +73,9 @@ export const transferLockedTokens = async (keyPair: Keypair, id: string, asset_c
         .setTimeout(86400);
     const transaction = builder.build();
     transaction.sign(keyPair);
-    console.log(transaction.toXDR());
     try {
         await server.submitTransaction(transaction);
     } catch (e) {
-        console.log(e);
         throw Error(`Failed to submit locked transaction ${e} `);
     }
 };
